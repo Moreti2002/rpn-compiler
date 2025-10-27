@@ -132,12 +132,19 @@ OPERADOR_REL → <=
 
 ## Exemplo de Árvore Sintática
 
-Expressão: `(3RES)`
+Expressão: `((105/)(32^)*)`
 
 ```
 EXPRESSAO
-  └─ COMANDO_RES
-    └─ NUMERO: 3
+  └─ OPERACAO: *
+    ├─ EXPRESSAO
+      └─ OPERACAO: /
+        ├─ NUMERO: 10
+        └─ NUMERO: 5
+    └─ EXPRESSAO
+      └─ OPERACAO: ^
+        ├─ NUMERO: 3
+        └─ NUMERO: 2
 ```
 
 Árvore completa salva em: `arvore_sintatica.json`

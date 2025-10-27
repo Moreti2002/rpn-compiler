@@ -3,13 +3,52 @@
   "valor": null,
   "filhos": [
     {
-      "tipo": "COMANDO_RES",
-      "valor": null,
+      "tipo": "OPERACAO",
+      "valor": "*",
       "filhos": [
         {
-          "tipo": "NUMERO",
-          "valor": "3",
-          "filhos": []
+          "tipo": "EXPRESSAO",
+          "valor": null,
+          "filhos": [
+            {
+              "tipo": "OPERACAO",
+              "valor": "/",
+              "filhos": [
+                {
+                  "tipo": "NUMERO",
+                  "valor": "10",
+                  "filhos": []
+                },
+                {
+                  "tipo": "NUMERO",
+                  "valor": "5",
+                  "filhos": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tipo": "EXPRESSAO",
+          "valor": null,
+          "filhos": [
+            {
+              "tipo": "OPERACAO",
+              "valor": "^",
+              "filhos": [
+                {
+                  "tipo": "NUMERO",
+                  "valor": "3",
+                  "filhos": []
+                },
+                {
+                  "tipo": "NUMERO",
+                  "valor": "2",
+                  "filhos": []
+                }
+              ]
+            }
+          ]
         }
       ]
     }

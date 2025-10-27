@@ -154,5 +154,235 @@ Token 1:
 - **Contexto de execução**: histórico e memória compartilhados
 - **Recursividade**: suporte a expressões aninhadas
 
+# Analisador Sintático LL(1) - Fase 2
+
+Implementação de um analisador sintático descendente recursivo LL(1) para linguagem de programação em notação polonesa reversa (RPN). Este projeto complementa a Fase 1 (Analisador Léxico) adicionando análise sintática, construção de árvore sintática abstrata e validação estrutural das expressões.
+
+## Características da Linguagem
+
+### Notação RPN
+
+Expressões no formato `(operando1 operando2 operador)`.
+
+**Operadores Aritméticos:**
+- Adição: `+`
+- Subtração: `-`
+- Multiplicação: `*`
+- Divisão: `/`
+- Resto: `%`
+- Potenciação: `^`
+
+**Operadores Relacionais:**
+- `>`, `<`, `==`, `!=`, `>=`, `<=`
+
+**Comandos Especiais:**
+- `(N RES)` - recupera resultado N linhas anteriores
+- `(V MEM)` - armazena valor V na memória MEM
+- `(MEM)` - recupera valor da memória MEM
+
+**Expressões Aninhadas:**
+```
+((2 3 +) (4 5 *) -)
+(((1 2 +) (3 4 *) +) 2 /)
+```
+
+## Uso
+
+### Executar Analisador Sintático
+```bash
+python3 main_parser.py 
+```
+
+**Exemplo:**
+```bash
+python3 main_parser.py test1.txt
+```
+
+### Executar Testes
+
+**Suite completa:**
+```bash
+python3 run_test.py
+```
+
+**Testes unitários:**
+```bash
+python3 -m pytest tests/test_parser.py -v
+python3 -m pytest tests/test_grammar.py -v
+```
+
+**Testes standalone:**
+```bash
+python3 tests/test_parser.py --standalone
+python3 tests/test_grammar.py --standalone
+```
+
+### Testar Módulos Individuais
+```bash
+python3 src/grammar.py     # Visualizar gramática e tabela LL(1)
+python3 src/lexer.py       # Testar analisador léxico
+python3 src/parser.py      # Testar parser
+python3 src/syntax_tree.py # Testar geração de árvore
+```
+
+## Saídas Geradas
+
+### GRAMATICA.md
+Documentação automática contendo:
+- Regras de produção da gramática
+- Conjuntos FIRST e FOLLOW
+- Tabela de análise LL(1)
+- Exemplo de árvore sintática
+
+### arvore_sintatica.json
+Árvore sintática em formato JSON da última expressão processada.
+
+## Arquivos de Teste
+
+### test1.txt
+- Operações aritméticas básicas
+- Números inteiros e decimais
+- Comandos de memória (MEM, VAR)
+- Comando RES
+- Expressões aninhadas
+
+### test2.txt
+- Armazenamento e recuperação de variáveis
+- Operações com identificadores
+- Combinações de comandos
+
+### test3.txt
+- Aninhamento profundo de expressões
+- Uso de RES com operações
+- Casos complexos
+
+## Divisão de Tarefas
+
+### Gramática e Análise LL(1)
+**Arquivo:** `src/grammar.py`
+
+Funções:
+- `construir_gramatica()` - Define regras de produção
+- `calcular_first()` - Calcula conjuntos FIRST
+- `calcular_follow()` - Calcula conjuntos FOLLOW
+- `construir_tabela_ll1()` - Constrói tabela de análise
+- `validar_gramatica_ll1()` - Valida ausência de conflitos
+
+### Parser Descendente Recursivo
+**Arquivo:** `src/parser.py`
+
+Funções:
+- `parsear()` - Análise sintática principal
+- `parse_expressao()` - Analisa expressões
+- `parse_operacao()` - Analisa operações
+- `parse_comando_memoria()` - Analisa comandos MEM
+- `parse_comando_res()` - Analisa comando RES
+
+### Leitura de Tokens
+**Arquivo:** `src/token_reader.py`
+
+Funções:
+- `ler_tokens()` - Lê tokens de arquivo
+- `validar_tokens()` - Valida estrutura de tokens
+
+### Árvore Sintática e Integração
+**Arquivos:** `src/syntax_tree.py`, `main_parser.py`
+
+Funções:
+- `gerar_arvore()` - Constrói AST
+- `imprimir_arvore()` - Visualiza árvore
+- `salvar_arvore()` - Salva em JSON
+- `main()` - Integração de módulos
+- `salvar_documentacao()` - Gera GRAMATICA.md
+
+## Exemplos
+
+### Expressão Simples
+**Entrada:** `(3 5 +)`
+
+**Saída:**
+```
+EXPRESSAO
+  └─ OPERACAO: +
+    ├─ NUMERO: 3
+    └─ NUMERO: 5
+```
+
+### Expressão Aninhada
+**Entrada:** `((2 3 *) (4 2 /) /)`
+
+**Saída:**
+```
+EXPRESSAO
+  └─ OPERACAO: /
+    ├─ EXPRESSAO
+      └─ OPERACAO: *
+        ├─ NUMERO: 2
+        └─ NUMERO: 3
+    └─ EXPRESSAO
+      └─ OPERACAO: /
+        ├─ NUMERO: 4
+        └─ NUMERO: 2
+```
+
+### Comando de Memória
+**Entrada:** `(42 MEM)`
+
+**Saída:**
+```
+EXPRESSAO
+  └─ COMANDO_ARMAZENAR
+    ├─ NUMERO: 42
+    └─ IDENTIFICADOR: MEM
+```
+
+## Tratamento de Erros
+
+O analisador detecta:
+- Caracteres inválidos (léxico)
+- Números malformados (léxico)
+- Parênteses não balanceados (léxico)
+- Tokens inesperados (sintático)
+- Operandos insuficientes (sintático)
+- Estrutura de expressão inválida (sintático)
+
+**Exemplo:**
+```
+Entrada: (3 5)
+Erro: Erro sintático [pos 3]: Esperado OPERADOR, encontrado PARENTESE_FECHA
+```
+
+## Limitações
+
+- Estruturas de controle (IF/WHILE) estão definidas na gramática mas não totalmente implementadas no parser
+- Não há análise semântica (será implementada na Fase 3)
+- Não há geração de código para estruturas de controle
+- Não há verificação de tipos
+
+## Documentação Adicional
+
+Consulte `GRAMATICA.md` para detalhes completos sobre:
+- Gramática formal em EBNF
+- Conjuntos FIRST e FOLLOW calculados
+- Tabela LL(1) completa
+- Exemplos de derivações
+
+## Depuração
+
+**Modo debug:**
+```bash
+python3 -m pdb main_parser.py test1.txt
+```
+
+**Visualizar gramática:**
+```bash
+python3 src/grammar.py
+```
+
+**Verificar árvore JSON:**
+```bash
+python3 -m json.tool arvore_sintatica.json
+```
+
 ## Contribuições
 @Moreti2002
