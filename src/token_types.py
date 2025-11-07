@@ -10,7 +10,7 @@ PALAVRA_RESERVADA = "PALAVRA_RESERVADA"
 IDENTIFICADOR = "IDENTIFICADOR"
 
 # conjuntos de caracteres válidos
-OPERADORES_VALIDOS = {'+', '-', '*', '/', '%', '^'}
+OPERADORES_VALIDOS = {'+', '-', '*', '/', '%', '^', '|'}  # '|' é divisão real
 OPERADORES_RELACIONAIS = {'>', '<', '=', '!'}
 PALAVRAS_RESERVADAS = {'RES', 'IF', 'WHILE', 'THEN', 'ELSE', 'PRINT'}
 

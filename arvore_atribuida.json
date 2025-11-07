@@ -1,0 +1,442 @@
+{
+  "tipo": "PROGRAMA",
+  "tipo_inferido": "void",
+  "linha": 1,
+  "filhos": [
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "int",
+      "linha": 3,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "int",
+          "linha": 3,
+          "valor": "+",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 3,
+              "valor": "3",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 3,
+              "valor": "5",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "int",
+      "linha": 4,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "int",
+          "linha": 4,
+          "valor": "-",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 4,
+              "valor": "10",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 4,
+              "valor": "3",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "int",
+      "linha": 5,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "int",
+          "linha": 5,
+          "valor": "*",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 5,
+              "valor": "4",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 5,
+              "valor": "7",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "int",
+      "linha": 6,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "int",
+          "linha": 6,
+          "valor": "/",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 6,
+              "valor": "15",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 6,
+              "valor": "3",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "int",
+      "linha": 7,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "int",
+          "linha": 7,
+          "valor": "%",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 7,
+              "valor": "10",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 7,
+              "valor": "3",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "int",
+      "linha": 8,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "int",
+          "linha": 8,
+          "valor": "^",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 8,
+              "valor": "2",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 8,
+              "valor": "8",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "real",
+      "linha": 11,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "real",
+          "linha": 11,
+          "valor": "|",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 11,
+              "valor": "10.0",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 11,
+              "valor": "3.0",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "real",
+      "linha": 12,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "real",
+          "linha": 12,
+          "valor": "+",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 12,
+              "valor": "15.5",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 12,
+              "valor": "2.5",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "real",
+      "linha": 13,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "real",
+          "linha": 13,
+          "valor": "-",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 13,
+              "valor": "20.0",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 13,
+              "valor": "4.0",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "real",
+      "linha": 14,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "real",
+          "linha": 14,
+          "valor": "*",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 14,
+              "valor": "3.5",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 14,
+              "valor": "2.0",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "real",
+      "linha": 17,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "real",
+          "linha": 17,
+          "valor": "+",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 17,
+              "valor": "5",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 17,
+              "valor": "2.5",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "real",
+      "linha": 18,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "real",
+          "linha": 18,
+          "valor": "-",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 18,
+              "valor": "10.0",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 18,
+              "valor": "3",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "real",
+      "linha": 19,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "real",
+          "linha": 19,
+          "valor": "*",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 19,
+              "valor": "4.5",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 19,
+              "valor": "2",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "real",
+      "linha": 22,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "real",
+          "linha": 22,
+          "valor": "^",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "real",
+              "linha": 22,
+              "valor": "2.5",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 22,
+              "valor": "3",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "EXPRESSAO",
+      "tipo_inferido": "int",
+      "linha": 23,
+      "filhos": [
+        {
+          "tipo": "OPERACAO",
+          "tipo_inferido": "int",
+          "linha": 23,
+          "valor": "^",
+          "filhos": [
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 23,
+              "valor": "5",
+              "filhos": []
+            },
+            {
+              "tipo": "NUMERO",
+              "tipo_inferido": "int",
+              "linha": 23,
+              "valor": "2",
+              "filhos": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

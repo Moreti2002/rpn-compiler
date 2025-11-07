@@ -158,34 +158,6 @@ Token 1:
 
 Implementação de um analisador sintático descendente recursivo LL(1) para linguagem de programação em notação polonesa reversa (RPN). Este projeto complementa a Fase 1 (Analisador Léxico) adicionando análise sintática, construção de árvore sintática abstrata e validação estrutural das expressões.
 
-## Características da Linguagem
-
-### Notação RPN
-
-Expressões no formato `(operando1 operando2 operador)`.
-
-**Operadores Aritméticos:**
-- Adição: `+`
-- Subtração: `-`
-- Multiplicação: `*`
-- Divisão: `/`
-- Resto: `%`
-- Potenciação: `^`
-
-**Operadores Relacionais:**
-- `>`, `<`, `==`, `!=`, `>=`, `<=`
-
-**Comandos Especiais:**
-- `(N RES)` - recupera resultado N linhas anteriores
-- `(V MEM)` - armazena valor V na memória MEM
-- `(MEM)` - recupera valor da memória MEM
-
-**Expressões Aninhadas:**
-```
-((2 3 +) (4 5 *) -)
-(((1 2 +) (3 4 *) +) 2 /)
-```
-
 ## Uso
 
 ### Executar Analisador Sintático
@@ -367,21 +339,284 @@ Consulte `GRAMATICA.md` para detalhes completos sobre:
 - Tabela LL(1) completa
 - Exemplos de derivações
 
+---
+
+# Analisador Semântico - Fase 3
+
+Implementação completa de um **analisador semântico** com gramática de atributos, verificação de tipos, validação de memórias e análise de estruturas de controle. Este projeto integra as três fases do compilador: análise léxica, sintática e semântica.
+
+## Características da Fase 3
+
+### Análise Semântica Completa
+- ✅ **Gramática de Atributos**: Regras semânticas formais para todas as construções
+- ✅ **Julgamento de Tipos**: Verificação e inferência de tipos (int, real, booleano)
+- ✅ **Tabela de Símbolos**: Gerenciamento de memórias e variáveis
+- ✅ **Árvore Sintática Atribuída**: AST com tipos inferidos
+- ✅ **Validação de Memória**: Verificação de inicialização de variáveis
+- ✅ **Estruturas de Controle**: Análise semântica de IF e WHILE
+
+### Tipos de Dados Suportados
+- **int**: Números inteiros
+- **real** (float): Números de ponto flutuante (IEEE 754)
+- **booleano**: Resultado de operações relacionais (interno)
+
+### Operadores
+
+#### Operadores Aritméticos
+- `+` (adição): int/real → promove tipo
+- `-` (subtração): int/real → promove tipo
+- `*` (multiplicação): int/real → promove tipo
+- `|` (divisão real): int/real → sempre real
+- `/` (divisão inteira): **apenas int** → int
+- `%` (resto): **apenas int** → int
+- `^` (potência): base int/real, **expoente int** → tipo da base
+
+#### Operadores Relacionais
+- `>` (maior que): int/real → booleano
+- `<` (menor que): int/real → booleano
+- `>=` (maior ou igual): int/real → booleano
+- `<=` (menor ou igual): int/real → booleano
+- `==` (igual): int/real → booleano
+- `!=` (diferente): int/real → booleano
+
+### Regras de Promoção de Tipos
+```
+int  ⊕ int  → int
+int  ⊕ real → real
+real ⊕ int  → real
+real ⊕ real → real
+```
+Onde ⊕ representa operadores: `+`, `-`, `*`, `|`
+
+## Uso da Fase 3
+
+### Executar Análise Completa (3 Fases)
+```bash
+python3 main_semantico.py <arquivo_teste.txt>
+```
+
+**Exemplo:**
+```bash
+python3 main_semantico.py test_simples.txt
+```
+
+### Saída do Programa
+O programa executa as 3 fases em sequência e exibe:
+1. **Fase 1**: Análise Léxica (tokens gerados)
+2. **Fase 2**: Análise Sintática (árvores geradas)
+3. **Fase 3**: Análise Semântica
+   - Gramática de atributos definida
+   - Tabela de símbolos populada
+   - Tipos inferidos e validados
+   - Erros semânticos (se houver)
+
+### Arquivos Gerados
+
+#### Árvore Atribuída (JSON)
+`arvore_atribuida.json` - Árvore sintática com tipos inferidos
+```json
+{
+  "tipo": "OPERACAO",
+  "tipo_inferido": "int",
+  "linha": 1,
+  "valor": "+",
+  "filhos": [...]
+}
+```
+
+#### Documentação em Markdown (docs/)
+1. **GRAMATICA_ATRIBUTOS.md**
+   - Atributos sintetizados e herdados
+   - Regras de produção com atributos
+   - Regras para cada operador
+   - Comandos especiais
+   - Estruturas de controle
+
+2. **ARVORE_ATRIBUIDA.md**
+   - Visualização hierárquica da árvore
+   - Representação JSON completa
+   - Tipos inferidos em cada nó
+
+3. **ERROS_SEMANTICOS.md**
+   - Lista de erros encontrados
+   - Linha e contexto de cada erro
+   - Descrição detalhada
+
+4. **JULGAMENTO_TIPOS.md**
+   - Regras de dedução aplicadas
+   - Tipos inferidos por expressão
+   - Justificativa de cada inferência
+
+## Estrutura do Projeto - Fase 3
+
+```
+├── src/
+│   ├── gramatica_atributos.py    # Gramática de atributos e regras semânticas
+│   ├── tabela_simbolos.py        # Gerenciamento de símbolos e memórias
+│   ├── analisador_tipos.py       # Verificação e inferência de tipos
+│   ├── analisador_memoria.py     # Validação de uso de memórias
+│   ├── analisador_controle.py    # Validação de estruturas de controle
+│   └── arvore_atribuida.py       # Geração da árvore atribuída
+├── utils/
+│   └── formatador_relatorios.py  # Geração de relatórios em Markdown
+├── docs/                          # Documentação gerada automaticamente
+│   ├── GRAMATICA_ATRIBUTOS.md
+│   ├── ARVORE_ATRIBUIDA.md
+│   ├── ERROS_SEMANTICOS.md
+│   └── JULGAMENTO_TIPOS.md
+├── main_semantico.py              # Programa principal integrado (3 fases)
+├── test_simples.txt               # Arquivo de teste válido
+├── test_fase3_1.txt               # Teste com casos válidos
+├── test_fase3_2.txt               # Teste com erros semânticos
+└── test_fase3_3.txt               # Teste com casos complexos
+```
+
+## Arquivos de Teste - Fase 3
+
+### test_simples.txt
+Arquivo de teste com **sintaxe totalmente válida** e sem erros semânticos:
+```
+# Operações com inteiros
+(3 5 +)         # int + int = int
+(10 3 -)        # Subtração
+(4 7 *)         # Multiplicação
+(15 3 /)        # Divisão inteira (ambos int)
+(10 3 %)        # Resto (ambos int)
+(2 8 ^)         # Potência (expoente int)
+
+# Operações com reais
+(10.0 3.0 |)    # Divisão real (sempre retorna real)
+(15.5 2.5 +)    # Adição de reais
+
+# Promoção de tipos
+(5 2.5 +)       # int + real = real
+(10.0 3 -)      # real - int = real
+```
+
+**Resultado:** ✅ 0 erros semânticos
+
+### test_fase3_2.txt
+Exemplos de **erros semânticos** detectados:
+```
+(5.5 2 /)       # Erro: divisão inteira requer operandos int
+(2 3.5 %)       # Erro: resto requer operandos int
+(2.0 3.5 ^)     # Erro: expoente deve ser int
+```
+
+## Exemplos de Análise Semântica
+
+### Exemplo 1: Operação Válida
+**Entrada:** `(3 5 +)`
+
+**Análise:**
+- Léxica: 5 tokens
+- Sintática: Árvore gerada
+- Semântica:
+  - Tipo(3) = int
+  - Tipo(5) = int
+  - Tipo(3 + 5) = promover(int, int) = **int**
+  - Sem erros
+
+### Exemplo 2: Promoção de Tipo
+**Entrada:** `(5 2.5 +)`
+
+**Análise:**
+- Tipo(5) = int
+- Tipo(2.5) = real
+- Tipo(5 + 2.5) = promover(int, real) = **real**
+- Promoção automática
+
+### Exemplo 3: Erro de Tipo
+**Entrada:** `(5.5 2 /)`
+
+**Análise:**
+- Tipo(5.5) = real
+- Tipo(2) = int
+- Operador `/` requer: int, int
+- **ERRO SEMÂNTICO**: Operador `/` requer operandos inteiros
+
+### Exemplo 4: Divisão Real
+**Entrada:** `(10.0 3.0 |)`
+
+**Análise:**
+- Tipo(10.0) = real
+- Tipo(3.0) = real
+- Operador `|` sempre retorna: **real**
+- ✅ Sem erros
+
+## Erros Semânticos Detectados
+
+### Erros de Tipo
+- Operação com tipos incompatíveis
+- Expoente não inteiro em potência
+- Operandos não inteiros em divisão inteira (`/`) ou resto (`%`)
+- Operandos não numéricos em operações aritméticas
+
+### Erros de Memória
+- Uso de memória não inicializada
+- Identificador não declarado
+- Tipo inválido para armazenamento
+
+### Erros de Controle
+- Condição não booleana em IF/WHILE
+- Tipos incompatíveis nos blocos de IF
+
+## Validação e Testes
+
+### Rotinas de Teste Utilizadas
+
+1. **Teste de Operações Aritméticas**
+   ```bash
+   python3 main_semantico.py test_simples.txt
+   ```
+   - Valida todas as operações aritméticas
+   - Verifica promoção de tipos
+   - Confirma inferência correta
+
+2. **Teste de Erros Semânticos**
+   ```bash
+   python3 main_semantico.py test_fase3_2.txt
+   ```
+   - Valida detecção de erros de tipo
+   - Confirma mensagens de erro claras
+   - Verifica linha e contexto dos erros
+
+3. **Teste de Casos Complexos**
+   ```bash
+   python3 main_semantico.py test_fase3_3.txt
+   ```
+   - Expressões aninhadas
+   - Múltiplas variáveis
+   - Combinações de operadores
+
+### Verificação dos Arquivos Gerados
+```bash
+# Verificar árvore atribuída
+cat arvore_atribuida.json | python3 -m json.tool
+
+# Visualizar relatórios
+cat docs/GRAMATICA_ATRIBUTOS.md
+cat docs/JULGAMENTO_TIPOS.md
+cat docs/ERROS_SEMANTICOS.md
+cat docs/ARVORE_ATRIBUIDA.md
+```
+
+
 ## Depuração
 
-**Modo debug:**
+### Visualizar Gramática de Atributos
 ```bash
-python3 -m pdb main_parser.py test1.txt
+python3 src/gramatica_atributos.py
 ```
 
-**Visualizar gramática:**
+### Testar Tabela de Símbolos
 ```bash
-python3 src/grammar.py
+python3 src/tabela_simbolos.py
 ```
 
-**Verificar árvore JSON:**
+### Testar Analisador de Tipos
 ```bash
-python3 -m json.tool arvore_sintatica.json
+python3 src/analisador_tipos.py
 ```
 
 ## Contribuições

@@ -1,0 +1,26 @@
+# Arquivo de teste com sintaxe válida
+# Operações aritméticas básicas
+(3 5 +)
+(10 3 -)
+(4 7 *)
+(15 3 /)
+(10 3 %)
+(2 8 ^)
+
+# Operação com divisão real
+(10.0 3.0 |)
+(15.5 2.5 +)
+
+# Comandos de armazenamento em memória
+(42 X)
+(100 VALOR)
+(3.14 PI)
+
+# Uso de memória depois de armazenar
+(X 2 *)
+(VALOR 50 -)
+(PI 2.0 *)
+
+# Combinações mais complexas
+(5 3 +)
+(10 2 /)

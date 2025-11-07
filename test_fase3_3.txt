@@ -1,0 +1,11 @@
+# test_fase3_3.txt - Casos complexos
+(100 INICIAL)
+(INICIAL 50 >)
+(INICIAL 10 -)
+(INICIAL 2 ^)
+(INICIAL 3 |)
+(5 3 +)
+(1 RES)
+(50 LIMITE)
+(LIMITE INICIAL >)
+(LIMITE INICIAL <=)

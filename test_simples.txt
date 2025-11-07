@@ -1,0 +1,23 @@
+# Arquivo de teste - Apenas operações aritméticas válidas
+# Testes com inteiros
+(3 5 +)
+(10 3 -)
+(4 7 *)
+(15 3 /)
+(10 3 %)
+(2 8 ^)
+
+# Testes com reais
+(10.0 3.0 |)
+(15.5 2.5 +)
+(20.0 4.0 -)
+(3.5 2.0 *)
+
+# Testes mistos (int com real -> real)
+(5 2.5 +)
+(10.0 3 -)
+(4.5 2 *)
+
+# Testes de potência (expoente deve ser int)
+(2.5 3 ^)
+(5 2 ^)
