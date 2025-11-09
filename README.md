@@ -384,5 +384,302 @@ python3 src/grammar.py
 python3 -m json.tool arvore_sintatica.json
 ```
 
+---
+
+# Analisador Semântico - Fase 3
+
+Implementação de um analisador semântico completo com verificação de tipos, validação de memória e estruturas de controle. Esta fase complementa as Fases 1 (Análise Léxica) e 2 (Análise Sintática), adicionando análise semântica, gramática de atributos e geração de árvore atribuída.
+
+## Características da Fase 3
+
+### Análise Semântica
+
+O analisador semântico realiza três tipos principais de verificações:
+
+**1. Verificação de Tipos:**
+- Compatibilidade de tipos em operações aritméticas
+- Promoção automática de tipos (int → real)
+- Validação de expoente inteiro em potenciação
+- Operandos inteiros para divisão inteira (`/`) e resto (`%`)
+- Operadores relacionais retornam tipo `booleano`
+
+**2. Verificação de Memória:**
+- Memórias devem ser inicializadas antes do uso
+- Validação de comandos especiais (`MEM`, `RES`)
+- Tabela de símbolos com escopo
+
+**3. Verificação de Controle:**
+- Condições de IF/WHILE devem retornar booleano
+- Validação de estrutura de blocos
+- Verificação de aninhamento
+
+### Gramática de Atributos
+
+A gramática de atributos define regras de inferência de tipos:
+
+**Tipos de Dados:**
+- `int`: números inteiros
+- `real`: números de ponto flutuante
+- `booleano`: resultado de operações relacionais (não pode ser armazenado em memória)
+
+**Regra de Promoção:**
+```
+promover_tipo(int, int)   = int
+promover_tipo(int, real)  = real
+promover_tipo(real, int)  = real
+promover_tipo(real, real) = real
+```
+
+**Novos Operadores:**
+- `|` : divisão real (resultado sempre `real`)
+- `>`, `<`, `>=`, `<=`, `==`, `!=` : operadores relacionais (retornam `booleano`)
+
+## Uso da Fase 3
+
+### Executar Analisador Completo
+
+```bash
+python3 main_semantico.py <arquivo.txt>
+```
+
+**Exemplo:**
+```bash
+python3 main_semantico.py test_fase3_1.txt
+```
+
+### Arquivos de Teste
+
+**test_fase3_1.txt** - Casos válidos:
+- Operações aritméticas básicas
+- Expressões aninhadas
+- Promoção de tipos
+- Operadores relacionais
+
+**test_fase3_2.txt** - Erros semânticos:
+- Memórias não inicializadas
+- Divisão inteira com operando real
+- Expoente não inteiro
+- RES sem histórico suficiente
+
+**test_fase3_3.txt** - Casos complexos:
+- Expressões profundamente aninhadas
+- Múltiplos comandos RES
+- Comparações relacionais
+- Mistura de tipos
+
+## Saídas Geradas pela Fase 3
+
+### arvore_atribuida.json
+Árvore sintática abstrata atribuída em formato JSON com tipos inferidos.
+
+### docs/GRAMATICA_ATRIBUTOS.md
+Documentação completa da gramática de atributos contendo:
+- Atributos sintetizados e herdados
+- Regras de produção com tipos
+- Regras de inferência de tipos
+- Exemplos de aplicação
+
+### docs/ARVORE_ATRIBUIDA.md
+Representação da árvore atribuída da última execução com:
+- Estatísticas (total de nós, profundidade)
+- Distribuição de tipos de nós
+- Estrutura hierárquica formatada
+- Tipos inferidos para cada nó
+
+### docs/ERROS_SEMANTICOS.md
+Relatório de todos os erros encontrados:
+- Resumo com contagem por categoria
+- Erros detalhados com linha e contexto
+- Classificação (léxico, sintático, semântico)
+
+### docs/JULGAMENTO_TIPOS.md
+Documentação das regras de dedução aplicadas:
+- Todas as regras de inferência utilizadas
+- Tipos inferidos para cada expressão
+- Explicação de promoções de tipos
+- Aplicação de regras semânticas
+
+## Estrutura do Projeto - Fase 3
+
+```
+├── src/
+│   ├── lexer.py                    # Analisador léxico (Fase 1)
+│   ├── parser.py                   # Analisador sintático (Fase 2)
+│   ├── grammar.py                  # Gramática LL(1) (Fase 2)
+│   ├── syntax_tree.py              # Árvore sintática (Fase 2)
+│   │
+│   ├── gramatica_atributos.py      # Gramática de atributos (Fase 3)
+│   ├── tabela_simbolos.py          # Tabela de símbolos (Fase 3)
+│   ├── analisador_tipos.py         # Verificação de tipos (Fase 3)
+│   ├── analisador_memoria.py       # Validação de memória (Fase 3)
+│   ├── analisador_controle.py      # Validação de controle (Fase 3)
+│   └── arvore_atribuida.py         # Árvore atribuída (Fase 3)
+│
+├── utils/
+│   ├── util.py                     # Utilitários gerais
+│   └── formatador_relatorios.py    # Geração de relatórios MD (Fase 3)
+│
+├── docs/                            # Relatórios markdown (Fase 3)
+│   ├── GRAMATICA_ATRIBUTOS.md
+│   ├── ARVORE_ATRIBUIDA.md
+│   ├── ERROS_SEMANTICOS.md
+│   └── JULGAMENTO_TIPOS.md
+│
+├── tests/                           # Testes unitários
+│   ├── test_lexer.py
+│   ├── test_parser.py
+│   └── test_grammar.py
+│
+├── main.py                          # Executor RPN (Fase 1)
+├── main_parser.py                   # Analisador sintático (Fase 2)
+├── main_semantico.py                # Analisador completo (Fase 3)
+│
+├── test_fase3_1.txt                 # Teste - casos válidos
+├── test_fase3_2.txt                 # Teste - erros semânticos
+├── test_fase3_3.txt                 # Teste - casos complexos
+│
+└── README.md
+```
+
+## Divisão de Tarefas - Fase 3
+
+### Aluno 1: Gramática de Atributos e Tabela de Símbolos
+**Arquivos:** `src/gramatica_atributos.py`, `src/tabela_simbolos.py`
+
+Funções principais:
+- `definir_gramatica_atributos()` - Define regras semânticas
+- `promover_tipo()` - Promoção de tipos
+- `inicializar_tabela_simbolos()` - Cria tabela
+- `adicionar_simbolo()` - Adiciona à tabela
+- `buscar_simbolo()` - Busca símbolo
+- `simbolo_inicializado()` - Verifica inicialização
+
+### Aluno 2: Verificação de Tipos
+**Arquivo:** `src/analisador_tipos.py`
+
+Funções principais:
+- `analisar_semantica()` - Análise semântica principal
+- `inferir_tipo_no()` - Infere tipo de um nó
+- `validar_operacao_aritmetica()` - Valida operação
+- `verificar_compatibilidade_tipos()` - Verifica compatibilidade
+- `gerar_relatorio_julgamento_tipos()` - Gera relatório de tipos
+
+### Aluno 3: Memória e Controle
+**Arquivos:** `src/analisador_memoria.py`, `src/analisador_controle.py`
+
+Funções principais:
+- `analisar_semantica_memoria()` - Valida memórias
+- `validar_comando_armazenar()` - Valida (V MEM)
+- `validar_comando_recuperar()` - Valida (MEM)
+- `analisar_semantica_controle()` - Valida IF/WHILE
+- `validar_condicao()` - Valida condição booleana
+
+### Aluno 4: Árvore Atribuída e Integração
+**Arquivos:** `src/arvore_atribuida.py`, `utils/formatador_relatorios.py`, `main_semantico.py`
+
+Funções principais:
+- `gerar_arvore_atribuida()` - Gera AST atribuída
+- `salvar_arvore_json()` - Salva em JSON
+- `gerar_todos_relatorios()` - Gera 4 relatórios MD
+- `main()` - Integração completa
+
+## Exemplos de Verificações Semânticas
+
+### Verificação de Tipos
+
+```python
+# Válido: int + int = int
+(5 3 +)
+
+# Válido: real + int = real (promoção)
+(3.14 2 +)
+
+# Válido: divisão real sempre retorna real
+(10.0 2.0 |)
+
+# ERRO: divisão inteira requer operandos int
+(5.5 2 /)
+
+# ERRO: expoente deve ser inteiro
+(2.0 3.5 ^)
+```
+
+### Verificação de Memória
+
+```python
+# ERRO: memória não inicializada
+(VAR)
+
+# Válido: armazenar primeiro
+(42 VAR)
+(VAR)  # Agora válido
+```
+
+### Operadores Relacionais
+
+```python
+# Válido: retorna booleano
+(5 3 >)
+(10 20 <=)
+(3.14 2.71 ==)
+```
+
+## Fluxo de Execução - Fase 3
+
+1. **Análise Léxica** (Fase 1) → tokens
+2. **Análise Sintática** (Fase 2) → AST
+3. **Definir Gramática de Atributos**
+4. **Análise Semântica - Tipos** → AST anotada com tipos
+5. **Análise Semântica - Memória** → validação de símbolos
+6. **Análise Semântica - Controle** → validação de IF/WHILE
+7. **Gerar Árvore Atribuída** → AST final
+8. **Gerar Relatórios Markdown** (4 arquivos)
+9. **Exibir erros** (se houver)
+
+## Mensagens de Erro
+
+### Erro de Tipo
+```
+ERRO SEMÂNTICO [Linha 5]: Operador '/' requer operandos inteiros
+Contexto: tipos: real, int
+```
+
+### Erro de Memória
+```
+ERRO SEMÂNTICO [Linha 3]: Memória 'VAR' utilizada sem inicialização
+Contexto: (VAR)
+```
+
+### Erro de Controle
+```
+ERRO SEMÂNTICO [Linha 7]: Condição deve retornar booleano, encontrado 'int'
+Contexto: tipo do nó: OPERACAO
+```
+
+## Testes
+
+### Executar análise completa
+```bash
+python3 main_semantico.py test_fase3_1.txt
+python3 main_semantico.py test_fase3_2.txt
+python3 main_semantico.py test_fase3_3.txt
+```
+
+### Verificar relatórios gerados
+```bash
+cat docs/GRAMATICA_ATRIBUTOS.md
+cat docs/ERROS_SEMANTICOS.md
+cat docs/JULGAMENTO_TIPOS.md
+python3 -m json.tool arvore_atribuida.json
+```
+
+### Testes individuais dos módulos
+```bash
+python3 src/gramatica_atributos.py
+python3 src/tabela_simbolos.py
+python3 src/analisador_tipos.py
+python3 utils/formatador_relatorios.py
+```
+
 ## Contribuições
 @Moreti2002

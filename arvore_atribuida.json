@@ -1,0 +1,51 @@
+{
+  "tipo": "EXPRESSAO",
+  "tipo_inferido": "int",
+  "linha": 1,
+  "filhos": [
+    {
+      "tipo": "OPERACAO",
+      "tipo_inferido": "int",
+      "linha": 1,
+      "valor": "+",
+      "filhos": [
+        {
+          "tipo": "EXPRESSAO",
+          "tipo_inferido": "int",
+          "linha": 1,
+          "filhos": [
+            {
+              "tipo": "OPERACAO",
+              "tipo_inferido": "int",
+              "linha": 1,
+              "valor": "/",
+              "filhos": [
+                {
+                  "tipo": "NUMERO",
+                  "tipo_inferido": "int",
+                  "linha": 1,
+                  "valor": "15",
+                  "filhos": []
+                },
+                {
+                  "tipo": "NUMERO",
+                  "tipo_inferido": "int",
+                  "linha": 1,
+                  "valor": "3",
+                  "filhos": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tipo": "NUMERO",
+          "tipo_inferido": "int",
+          "linha": 1,
+          "valor": "2",
+          "filhos": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+# Arquivo de teste 3 - Casos complexos
+# Teste de expressões aninhadas, comandos avançados e estruturas
+
+# Inicializar variáveis
+(100 INICIAL)
+(50 LIMITE)
+(0 RESULTADO)
+
+# Operações aninhadas complexas
+(((INICIAL LIMITE -) (2 3 ^) *) (10 5 /) +)
+
+# Divisão real vs divisão inteira
+(15 3 /)
+(15.0 3.0 |)
+
+# Uso de RES em operações
+(2 RES)
+(1 RES 2 +)
+
+# Potência com diferentes bases
+(2 10 ^)
+(2.5 3 ^)
+
+# Expressões profundamente aninhadas
+((((5 3 +) (2 4 *) *) (6 2 /) -) (1 RES) +)
+
+# Comparações (operadores relacionais)
+(INICIAL LIMITE >)
+(50 100 <)
+(LIMITE INICIAL <=)
+
+# Mistura de tipos em operações válidas
+(10 2.5 +)
+(3.14 2 *)
+
+# Recuperação de múltiplos resultados
+(3 RES)
+(1 RES 2 RES +)

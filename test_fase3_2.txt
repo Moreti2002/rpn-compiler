@@ -1,0 +1,29 @@
+# Arquivo de teste 2 - Casos com erros semânticos
+# Este arquivo deve gerar erros semânticos intencionais
+
+# Erro: memória não inicializada
+(VAR_NAO_INICIALIZADA)
+
+# Erro: divisão inteira com operando real
+(5.5 2 /)
+
+# Erro: resto com operando real
+(10 2.5 %)
+
+# Erro: expoente não inteiro
+(2.0 3.5 ^)
+
+# Erro: RES sem histórico suficiente
+(10 RES)
+
+# Operação válida para criar histórico
+(5 3 +)
+
+# Erro: tipo incorreto em operação
+(3.14 TESTE)
+
+# Outra operação válida
+(10 2 -)
+
+# Erro: uso de memória sem inicialização
+(MEMORIA)
