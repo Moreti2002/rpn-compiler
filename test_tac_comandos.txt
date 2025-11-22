@@ -1,0 +1,99 @@
+# Caminho: test_tac_comandos.txt
+# Arquivo de teste - TAC Parte 2
+# Comandos especiais: MEM, VAR, RES
+
+# ============================================================
+# TESTE 1: Armazenamento simples (V MEM)
+# ============================================================
+(10 VAR)
+# Esperado:
+# t0 = 10
+# VAR = t0
+
+# ============================================================
+# TESTE 2: Recuperação de memória (MEM)
+# ============================================================
+(42 MEM)
+(MEM)
+# Esperado:
+# t0 = 42
+# MEM = t0
+# t1 = MEM
+
+# ============================================================
+# TESTE 3: Armazenar e usar em operação
+# ============================================================
+(5 X)
+(X 3 +)
+# Esperado:
+# t0 = 5
+# X = t0
+# t1 = X
+# t2 = 3
+# t3 = t1 + t2
+
+# ============================================================
+# TESTE 4: Múltiplas variáveis
+# ============================================================
+(10 A)
+(20 B)
+(A B +)
+# Esperado:
+# t0 = 10
+# A = t0
+# t1 = 20
+# B = t1
+# t2 = A
+# t3 = B
+# t4 = t2 + t3
+
+# ============================================================
+# TESTE 5: Comando RES (resultado anterior)
+# ============================================================
+(3 5 +)
+(2 RES)
+# Esperado:
+# t0 = 3
+# t1 = 5
+# t2 = t0 + t1    # Resultado da linha anterior
+# t3 = t2         # RES aponta para t2
+
+# ============================================================
+# TESTE 6: Usar RES em múltiplas linhas
+# ============================================================
+(2 3 *)
+(4 5 +)
+(1 RES)
+(2 RES)
+# Esperado:
+# t0 = 2
+# t1 = 3
+# t2 = t0 * t1    # Linha 1: 2*3
+# t3 = 4
+# t4 = 5
+# t5 = t3 + t4    # Linha 2: 4+5
+# t6 = t5         # RES(1) pega linha 2
+# t7 = t2         # RES(2) pega linha 1
+
+# ============================================================
+# TESTE 7: Uso combinado de MEM, RES e operações
+# ============================================================
+(7 8 *)
+((1 RES) TEMP)
+(TEMP 10 +)
+# Esperado:
+# t0 = 7
+# t1 = 8
+# t2 = t0 * t1    # 7*8
+# t3 = t2         # RES(1)
+# TEMP = t3       # Armazena em TEMP
+# t4 = TEMP
+# t5 = 10
+# t6 = t4 + t5    # TEMP + 10
+# Esperado:
+# t0 = 7
+# t1 = 8
+# t2 = t0 * t1    # Linha 1
+# t3 = t2         # RES(1) aponta para resultado anterior
+# t4 = 2
+# COUNTER = t4

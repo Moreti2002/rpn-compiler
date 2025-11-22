@@ -173,24 +173,43 @@ def processar_arquivo_teste(nome_arquivo: str):
         print("FASE 4: Geração de TAC")
         print("─" * 70)
         
+        # Criar um único gerador para manter contexto entre expressões
         gerador = GeradorTAC()
         todas_instrucoes = []
+        instrucoes_por_expressao = []
         
         for arv_info in arvores_atribuidas:
             print(f"\nProcessando linha {arv_info['linha']}: {arv_info['texto']}")
             
             try:
-                # Gerar TAC para esta expressão
-                instrucoes = gerador.gerar_tac(arv_info['arvore'])
-                todas_instrucoes.extend(instrucoes)
+                # Processar a árvore e obter o resultado
+                # (usa o mesmo gerador para manter histórico e tabela de símbolos)
+                resultado_var = gerador.processar_no(arv_info['arvore'])
                 
-                print(f"✓ {len(instrucoes)} instruções TAC geradas")
+                # Adicionar resultado ao histórico para RES
+                if resultado_var and resultado_var != 'UNKNOWN':
+                    gerador.historico_resultados.append(resultado_var)
+                
+                # Contar quantas instruções foram adicionadas
+                num_instrucoes_atuais = len(gerador.instrucoes)
+                num_instrucoes_anteriores = len(todas_instrucoes)
+                novas_instrucoes = gerador.instrucoes[num_instrucoes_anteriores:]
+                
+                todas_instrucoes = gerador.instrucoes.copy()
+                
+                print(f"✓ {len(novas_instrucoes)} instruções TAC geradas")
                 
                 # Exibir TAC desta expressão
-                if instrucoes:
+                if novas_instrucoes:
                     print("\nTAC gerado:")
-                    for i, instrucao in enumerate(instrucoes, 1):
+                    for i, instrucao in enumerate(novas_instrucoes, 1):
                         print(f"  {i}. {instrucao}")
+                    
+                    instrucoes_por_expressao.append({
+                        'linha': arv_info['linha'],
+                        'texto': arv_info['texto'],
+                        'instrucoes': novas_instrucoes
+                    })
                 
             except Exception as e:
                 print(f"✗ Erro ao gerar TAC: {e}")

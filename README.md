@@ -741,18 +741,6 @@ Arquivo de teste com expressões válidas para geração de TAC:
 ((2 3 *) (4 2 /) +)    # (2*3) + (4/2)
 ```
 
-### Saída do Programa
-
-#### Console
-O programa exibe:
-1. **Fase 1**: Lista de expressões válidas
-2. **Fases 2 e 3**: Árvores prontas para TAC
-3. **Fase 4**: TAC gerado para cada expressão
-4. **Resultados Finais**: 
-   - TAC completo colorido
-   - Estatísticas detalhadas
-   - Caminho do arquivo de saída
-
 #### Arquivo de Saída
 `output/tac_original.txt` contém:
 ```
@@ -835,74 +823,6 @@ class GeradorTAC:
         self.tabela_simbolos = {}      # Tabela de símbolos
 ```
 
-## Recursos Implementados
-
-### ✅ Geração de TAC
-- [x] Conversão de expressões aritméticas
-- [x] Alocação de temporários
-- [x] Processamento recursivo de árvore
-- [x] Suporte a operadores aritméticos (+, -, *, /, |, %, ^)
-- [x] Suporte a números inteiros e reais
-- [x] Salvamento em arquivo
-
-### ⏳ Em Desenvolvimento
-- [ ] Otimização de código (Constant Folding)
-- [ ] Otimização (Constant Propagation)
-- [ ] Otimização (Dead Code Elimination)
-- [ ] Eliminação de saltos redundantes
-- [ ] Geração de código Assembly AVR
-- [ ] Suporte completo a estruturas de controle (IF/WHILE)
-- [ ] Suporte a comandos especiais (RES, MEM)
-- [ ] Compilação e teste no Arduino Uno
-
-## Próximos Passos
-
-### Fase 4 - Tarefas Pendentes
-
-1. **Aluno 2: Otimizador de TAC**
-   - Implementar `otimizarTAC(tac)`
-   - Constant folding
-   - Constant propagation
-   - Dead code elimination
-   - Eliminação de saltos redundantes
-
-2. **Aluno 3: Gerador Assembly AVR**
-   - Implementar `gerarAssembly(tacOtimizado)`
-   - Convenções de registradores
-   - Mapeamento TAC → Assembly
-   - Suporte a ponto flutuante (16 bits)
-
-3. **Aluno 4: Integração e Testes**
-   - Implementar `main()` integrado
-   - Criar arquivos de teste:
-     - `fatorial.txt` (fatorial de 1 a 8)
-     - `fibonacci.txt` (24 primeiros números)
-     - `taylor.txt` (série de Taylor do cosseno)
-   - Validação no Arduino Uno
-   - Documentação completa
-
-## Arquivos do Projeto - Fase 4
-
-```
-├── src/
-│   ├── gerador_tac.py           ✅ Gerador de TAC
-│   ├── otimizador_tac.py        ⏳ Otimizador (pendente)
-│   └── assembly_generator.py    ⏳ Gerador Assembly (pendente)
-├── tests/
-│   ├── test_gerador_tac.py      ✅ Teste integrado
-│   └── test_otimizador.py       ⏳ Teste otimizador (pendente)
-├── utils/
-│   └── formatador_tac.py        ✅ Formatador de TAC
-├── output/
-│   ├── tac_original.txt         ✅ TAC gerado
-│   └── tac_otimizado.txt        ⏳ TAC otimizado (pendente)
-├── programas_teste/
-│   ├── test_tac_simples.txt     ✅ Teste simples
-│   ├── fatorial.txt             ⏳ Pendente
-│   ├── fibonacci.txt            ⏳ Pendente
-│   └── taylor.txt               ⏳ Pendente
-└── README.md
-```
 
 ## Documentação Técnica
 
@@ -948,17 +868,28 @@ O processo de geração segue o algoritmo:
 
 ## Validação e Testes
 
-### Teste Básico
+### Teste Básico - Parte 1 (Operações Aritméticas)
 ```bash
 # Executar teste simples
 python3 tests/test_gerador_tac.py test_tac_simples.txt
 ```
 
+### Teste Parte 2 (Comandos Especiais)
+```bash
+# Executar teste de comandos MEM, VAR e RES
+python3 tests/test_gerador_tac.py test_tac_comandos.txt
+```
+
+**Comandos testados:**
+- `(10 VAR)` - Armazenamento em memória
+- `(MEM)` - Recuperação de memória
+- `(2 RES)` - Acesso ao histórico de resultados
+
 ### Resultado Esperado
 ```
-✓ Total: N expressões válidas
-✓ Total: N árvores prontas para TAC
-✓ M instruções TAC geradas
+✓ Total: 15-16 expressões válidas
+✓ Total: 15 árvores prontas para TAC
+✓ ~29 instruções TAC geradas
 ✓ TAC salvo em: output/tac_original.txt
 ```
 
@@ -968,12 +899,38 @@ python3 tests/test_gerador_tac.py test_tac_simples.txt
 cat output/tac_original.txt
 ```
 
+## Recursos Implementados - Fase 4
+
+### ✅ Parte 1: Operações Aritméticas
+- Conversão de expressões aritméticas para TAC
+- Alocação automática de temporários (t0, t1, t2...)
+- Processamento recursivo de árvore
+- Operadores: +, -, *, /, |, %, ^
+- Números inteiros e reais
+- Salvamento em arquivo
+
+### ✅ Parte 2: Comandos Especiais
+- **Armazenamento:** `(V MEM)` → `MEM = V`
+- **Recuperação:** `(MEM)` → `t0 = MEM`
+- **Histórico RES:** `(N RES)` → acessa resultado N linhas anteriores
+- Tabela de símbolos compartilhada
+- Contexto preservado entre expressões
+- Documentação completa em `docs/PARTE2_TAC_COMANDOS_ESPECIAIS.md`
+
+### ⏳ Próximas Implementações
+- [ ] Parte 3: Estruturas de controle (IF/WHILE)
+- [ ] Parte 4: Integração completa
+- [ ] Parte 5-8: Otimizações (Folding, Propagation, Dead Code)
+- [ ] Parte 9-13: Geração de Assembly AVR
+- [ ] Parte 14-16: Programas de teste e validação no Arduino
+
 ## Observações Importantes
 
 1. **Integração Completa**: O gerador TAC está integrado com todas as fases anteriores
 2. **Compatibilidade**: Mantém compatibilidade com estruturas das Fases 1, 2 e 3
 3. **Extensibilidade**: Estrutura preparada para otimizações e geração de Assembly
 4. **Documentação**: Código totalmente documentado e comentado
+5. **Contexto Preservado**: Histórico de resultados e tabela de símbolos mantidos entre expressões
 
 ## Contribuições
 @Moreti2002

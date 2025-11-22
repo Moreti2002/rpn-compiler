@@ -95,6 +95,7 @@ class GeradorTAC:
         self.contador_temporarios = 0
         self.contador_rotulos = 0
         self.tabela_simbolos: Dict[str, str] = {}
+        self.historico_resultados: List[str] = []  # Para comando RES
     
     def novo_temporario(self) -> str:
         """
@@ -167,6 +168,7 @@ class GeradorTAC:
         self.instrucoes = []
         self.contador_temporarios = 0
         self.contador_rotulos = 0
+        self.historico_resultados = []
         
         # Se for tupla, pegar primeiro elemento (árvore atribuída)
         if isinstance(arvore_atribuida, tuple):
@@ -175,7 +177,11 @@ class GeradorTAC:
             arvore_atribuida = arvore_atribuida[0]
         
         # Processar o nó raiz
-        self.processar_no(arvore_atribuida)
+        resultado = self.processar_no(arvore_atribuida)
+        
+        # Adicionar resultado ao histórico (para RES)
+        if resultado and resultado != 'UNKNOWN':
+            self.historico_resultados.append(resultado)
         
         return self.instrucoes
     
@@ -245,6 +251,94 @@ class GeradorTAC:
             if filhos:
                 return self.processar_no(filhos[0])
             return 'UNKNOWN'
+        
+        # COMANDO_ARMAZENAR: (V MEM) → MEM = V
+        elif tipo == 'COMANDO_ARMAZENAR':
+            filhos = self.obter_atributo(no, 'filhos', [])
+            
+            if len(filhos) < 2:
+                raise Exception("COMANDO_ARMAZENAR requer 2 operandos (valor e identificador)")
+            
+            # Processar o valor (pode ser número, expressão, etc.)
+            valor_var = self.processar_no(filhos[0])
+            
+            # Obter nome da variável de memória
+            identificador = self.obter_atributo(filhos[1], 'valor', 'MEM')
+            
+            # Criar instrução de cópia: MEM = valor
+            instrucao = InstrucaoTAC(
+                tipo='COPIA',
+                resultado=identificador,
+                operando1=valor_var,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao)
+            
+            # Registrar na tabela de símbolos
+            self.tabela_simbolos[identificador] = valor_var
+            
+            return identificador
+        
+        # COMANDO_RECUPERAR: (MEM) → t0 = MEM
+        elif tipo == 'COMANDO_RECUPERAR':
+            filhos = self.obter_atributo(no, 'filhos', [])
+            
+            if not filhos:
+                raise Exception("COMANDO_RECUPERAR requer um identificador")
+            
+            # Obter nome da variável de memória
+            identificador = self.obter_atributo(filhos[0], 'valor', 'MEM')
+            
+            # Criar temporário para receber o valor
+            temp = self.novo_temporario()
+            
+            # Criar instrução de cópia: t0 = MEM
+            instrucao = InstrucaoTAC(
+                tipo='COPIA',
+                resultado=temp,
+                operando1=identificador,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao)
+            
+            return temp
+        
+        # COMANDO_RES: (N RES) → acessa resultado N linhas anteriores
+        elif tipo == 'COMANDO_RES':
+            filhos = self.obter_atributo(no, 'filhos', [])
+            
+            if not filhos:
+                raise Exception("COMANDO_RES requer um número")
+            
+            # Obter o índice N
+            n_valor = self.obter_atributo(filhos[0], 'valor', '1')
+            
+            try:
+                n = int(float(n_valor))
+            except ValueError:
+                raise Exception(f"COMANDO_RES: índice inválido '{n_valor}'")
+            
+            # Verificar se o histórico tem resultados suficientes
+            if n <= 0 or n > len(self.historico_resultados):
+                raise Exception(f"COMANDO_RES: índice {n} fora do histórico (disponível: 1-{len(self.historico_resultados)})")
+            
+            # Acessar resultado do histórico (N linhas para trás)
+            # histórico[-1] é o último, [-2] é o penúltimo, etc.
+            resultado_anterior = self.historico_resultados[-n]
+            
+            # Criar temporário para receber o valor
+            temp = self.novo_temporario()
+            
+            # Criar instrução de cópia: t0 = resultado_anterior
+            instrucao = InstrucaoTAC(
+                tipo='COPIA',
+                resultado=temp,
+                operando1=resultado_anterior,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao)
+            
+            return temp
         
         # Outros tipos ainda não implementados
         else:
