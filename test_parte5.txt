@@ -1,0 +1,83 @@
+# Testes para Parte 5: Otimização TAC
+# Foco em Constant Folding, Constant Propagation e Dead Code Elimination
+
+# ============================================================================
+# CONSTANT FOLDING: Operações com constantes
+# ============================================================================
+
+# Teste 1: Soma de constantes
+(2 3 +)
+
+# Teste 2: Múltiplas operações constantes
+(10 5 - 2 *)
+
+# Teste 3: Expressão complexa só com constantes
+(4 3 + 2 * 5 -)
+
+# Teste 4: Potência e módulo com constantes
+(2 3 ^ 5 %)
+
+# Teste 5: Comparação com constantes
+(10 5 >)
+
+# ============================================================================
+# CONSTANT PROPAGATION: Substituição de variáveis por valores conhecidos
+# ============================================================================
+
+# Teste 6: Armazenar constante e usar
+(5 X)
+(X 3 +)
+
+# Teste 7: Usar variável múltiplas vezes
+(10 Y)
+(Y 2 *)
+(Y 3 +)
+
+# Teste 8: Cadeia de propagação
+(7 A)
+(A 3 + B)
+(B 2 *)
+
+# ============================================================================
+# DEAD CODE ELIMINATION: Remover código não utilizado
+# ============================================================================
+
+# Teste 9: Cálculo intermediário não utilizado
+(2 3 +)
+(10 20 *)
+(5 X)
+
+# Teste 10: Variável sobrescrita
+(100 Z)
+(200 Z)
+(Z 5 +)
+
+# ============================================================================
+# ESTRUTURAS DE CONTROLE com otimização
+# ============================================================================
+
+# Teste 11: IF com condição constante
+(10 5 > [(100 X)] [(0 X)])
+
+# Teste 12: WHILE com corpo otimizável
+(5 CONTADOR)
+(CONTADOR 0 > {(CONTADOR 1 - CONTADOR)})
+
+# ============================================================================
+# OTIMIZAÇÃO COMPLETA: Combinação de todas
+# ============================================================================
+
+# Teste 13: Expressão complexa com várias oportunidades
+(2 3 + A)
+(A 4 * B)
+(B 5 +)
+(100 C)
+(B RES)
+
+# Teste 14: Memória com constantes
+(10 20 + [0])
+([0] 5 *)
+
+# Teste 15: RES com propagação
+(42 RES)
+(RES 8 +)
