@@ -91,6 +91,12 @@ class GeradorAssemblyAVR:
         self.num_variaveis = 0
         self.num_temporarios = 0
         self.num_labels = 0
+        
+        # Gerenciamento de registradores (Parte 10)
+        # Registradores r16-r31 disponíveis para uso geral
+        self.registradores_disponiveis = list(range(16, 32))  # r16-r31
+        self.mapa_variaveis: Dict[str, int] = {}  # variável → registrador
+        self.registradores_em_uso: Dict[int, str] = {}  # registrador → variável
     
     def gerar_prologo(self):
         """
@@ -319,6 +325,280 @@ class GeradorAssemblyAVR:
         
         return bss
     
+    # ========================================================================
+    # PARTE 10: OPERAÇÕES ARITMÉTICAS - Gerenciamento de Registradores
+    # ========================================================================
+    
+    def alocar_registrador(self, variavel: str) -> int:
+        """
+        Aloca um registrador para uma variável
+        
+        Args:
+            variavel: Nome da variável (ex: 't0', 't1', 'X')
+            
+        Returns:
+            Número do registrador alocado
+        """
+        # Se já tem registrador alocado, retornar
+        if variavel in self.mapa_variaveis:
+            return self.mapa_variaveis[variavel]
+        
+        # Alocar novo registrador
+        if not self.registradores_disponiveis:
+            raise RuntimeError("Sem registradores disponíveis!")
+        
+        reg = self.registradores_disponiveis.pop(0)
+        self.mapa_variaveis[variavel] = reg
+        self.registradores_em_uso[reg] = variavel
+        
+        return reg
+    
+    def liberar_registrador(self, variavel: str):
+        """Libera o registrador usado por uma variável"""
+        if variavel in self.mapa_variaveis:
+            reg = self.mapa_variaveis[variavel]
+            del self.mapa_variaveis[variavel]
+            del self.registradores_em_uso[reg]
+            self.registradores_disponiveis.insert(0, reg)
+    
+    def obter_registrador(self, variavel: str) -> int:
+        """Obtém o registrador de uma variável (sem alocar novo)"""
+        return self.mapa_variaveis.get(variavel, None)
+    
+    def eh_constante(self, valor: str) -> bool:
+        """Verifica se um valor é uma constante numérica"""
+        try:
+            float(valor)
+            return True
+        except (ValueError, TypeError):
+            return False
+    
+    # ========================================================================
+    # PARTE 10: MAPEAMENTO TAC → ASSEMBLY
+    # ========================================================================
+    
+    def processar_instrucao_tac(self, instr: InstrucaoTAC) -> List[str]:
+        """
+        Converte uma instrução TAC para Assembly AVR
+        
+        Args:
+            instr: Instrução TAC
+            
+        Returns:
+            Lista de linhas Assembly
+        """
+        asm = []
+        
+        if instr.tipo == 'ATRIBUICAO':
+            asm.extend(self.gerar_atribuicao(instr))
+        elif instr.tipo == 'OPERACAO':
+            asm.extend(self.gerar_operacao(instr))
+        elif instr.tipo == 'COPIA':
+            asm.extend(self.gerar_copia(instr))
+        elif instr.tipo == 'ROTULO':
+            asm.extend(self.gerar_rotulo(instr))
+        elif instr.tipo == 'GOTO':
+            asm.extend(self.gerar_goto(instr))
+        elif instr.tipo == 'IF_FALSE':
+            asm.extend(self.gerar_if_false(instr))
+        else:
+            asm.append(f"    ; TODO: {instr.tipo} não implementado")
+        
+        return asm
+    
+    def gerar_atribuicao(self, instr: InstrucaoTAC) -> List[str]:
+        """
+        Gera Assembly para atribuição: resultado = valor
+        
+        Exemplo TAC: t0 = 5
+        Assembly: ldi r16, 5
+        """
+        asm = []
+        resultado = instr.resultado
+        valor = instr.operando1
+        
+        # Alocar registrador para resultado
+        reg_dest = self.alocar_registrador(resultado)
+        
+        if self.eh_constante(valor):
+            # Carregar constante
+            const_val = int(float(valor))
+            asm.append(f"    ldi r{reg_dest}, {const_val}  ; {resultado} = {valor}")
+        else:
+            # Copiar de outro registrador
+            reg_src = self.obter_registrador(valor)
+            if reg_src is not None:
+                asm.append(f"    mov r{reg_dest}, r{reg_src}  ; {resultado} = {valor}")
+            else:
+                asm.append(f"    ; ERRO: Variável {valor} não encontrada")
+        
+        return asm
+    
+    def gerar_operacao(self, instr: InstrucaoTAC) -> List[str]:
+        """
+        Gera Assembly para operação binária
+        
+        Exemplo TAC: t2 = t0 + t1
+        Assembly:
+            mov r18, r16  ; copiar t0
+            add r18, r17  ; adicionar t1
+        """
+        asm = []
+        resultado = instr.resultado
+        op1 = instr.operando1
+        op2 = instr.operando2
+        operador = instr.operador
+        
+        # Alocar registrador para resultado
+        reg_dest = self.alocar_registrador(resultado)
+        
+        # Obter operandos
+        if self.eh_constante(op1):
+            # Carregar primeira constante
+            val1 = int(float(op1))
+            asm.append(f"    ldi r{reg_dest}, {val1}")
+        else:
+            reg_op1 = self.obter_registrador(op1)
+            if reg_op1 is not None:
+                asm.append(f"    mov r{reg_dest}, r{reg_op1}")
+            else:
+                asm.append(f"    ; ERRO: Variável {op1} não encontrada")
+                return asm
+        
+        # Aplicar operação com segundo operando
+        if self.eh_constante(op2):
+            val2 = int(float(op2))
+            # Para operações com constante, precisamos de um registrador temporário
+            reg_temp = 31  # Usar r31 como temporário
+            asm.append(f"    ldi r{reg_temp}, {val2}")
+            reg_op2 = reg_temp
+        else:
+            reg_op2 = self.obter_registrador(op2)
+            if reg_op2 is None:
+                asm.append(f"    ; ERRO: Variável {op2} não encontrada")
+                return asm
+        
+        # Gerar instrução de operação
+        if operador == '+':
+            asm.append(f"    add r{reg_dest}, r{reg_op2}  ; {resultado} = {op1} + {op2}")
+        elif operador == '-':
+            asm.append(f"    sub r{reg_dest}, r{reg_op2}  ; {resultado} = {op1} - {op2}")
+        elif operador == '*':
+            # Multiplicação é mais complexa no AVR
+            asm.append(f"    mul r{reg_dest}, r{reg_op2}  ; {resultado} = {op1} * {op2}")
+            asm.append(f"    mov r{reg_dest}, r0  ; resultado em r0 (8-bit)")
+        elif operador == '/':
+            # Divisão requer implementação de função auxiliar
+            asm.append(f"    ; TODO: Divisão {op1} / {op2}")
+        elif operador == '%':
+            # Módulo requer implementação de função auxiliar
+            asm.append(f"    ; TODO: Módulo {op1} % {op2}")
+        elif operador == '^':
+            # Potência requer implementação de função auxiliar
+            asm.append(f"    ; TODO: Potência {op1} ^ {op2}")
+        elif operador in ['>', '<', '>=', '<=', '==', '!=']:
+            # Comparação
+            asm.append(f"    cp r{reg_dest}, r{reg_op2}  ; comparar {op1} {operador} {op2}")
+            # Resultado em flags, não em registrador
+        else:
+            asm.append(f"    ; ERRO: Operador {operador} não suportado")
+        
+        return asm
+    
+    def gerar_copia(self, instr: InstrucaoTAC) -> List[str]:
+        """
+        Gera Assembly para cópia: dest = src
+        
+        Exemplo TAC: X = t0
+        Assembly: mov r20, r16
+        """
+        asm = []
+        dest = instr.resultado
+        src = instr.operando1
+        
+        reg_dest = self.alocar_registrador(dest)
+        reg_src = self.obter_registrador(src)
+        
+        if reg_src is not None:
+            asm.append(f"    mov r{reg_dest}, r{reg_src}  ; {dest} = {src}")
+        else:
+            asm.append(f"    ; ERRO: Variável {src} não encontrada")
+        
+        return asm
+    
+    def gerar_rotulo(self, instr: InstrucaoTAC) -> List[str]:
+        """
+        Gera rótulo Assembly
+        
+        Exemplo TAC: L0:
+        Assembly: L0:
+        """
+        self.num_labels += 1
+        return [f"{instr.resultado}:"]
+    
+    def gerar_goto(self, instr: InstrucaoTAC) -> List[str]:
+        """
+        Gera salto incondicional
+        
+        Exemplo TAC: goto L0
+        Assembly: rjmp L0
+        """
+        return [f"    rjmp {instr.resultado}"]
+    
+    def gerar_if_false(self, instr: InstrucaoTAC) -> List[str]:
+        """
+        Gera salto condicional
+        
+        Exemplo TAC: ifFalse t0 goto L0
+        Assembly: 
+            tst r16
+            breq L0
+        """
+        asm = []
+        condicao = instr.operando1
+        label = instr.resultado
+        
+        reg_cond = self.obter_registrador(condicao)
+        if reg_cond is not None:
+            asm.append(f"    tst r{reg_cond}  ; testar {condicao}")
+            asm.append(f"    breq {label}  ; saltar se zero (falso)")
+        else:
+            asm.append(f"    ; ERRO: Variável {condicao} não encontrada")
+        
+        return asm
+    
+    def gerar_programa_principal(self, instrucoes_tac: List[InstrucaoTAC]) -> List[str]:
+        """
+        Gera o corpo do programa_principal a partir das instruções TAC
+        
+        Args:
+            instrucoes_tac: Lista de instruções TAC otimizadas
+            
+        Returns:
+            Lista de linhas Assembly
+        """
+        asm = []
+        asm.append("; === FUNÇÃO: Programa Principal (gerado a partir do TAC) ===")
+        asm.append("programa_principal:")
+        asm.append("    push r16")
+        asm.append("    push r17")
+        asm.append("    push r18")
+        asm.append("")
+        
+        # Processar cada instrução TAC
+        for instr in instrucoes_tac:
+            linhas = self.processar_instrucao_tac(instr)
+            asm.extend(linhas)
+        
+        asm.append("")
+        asm.append("    pop r18")
+        asm.append("    pop r17")
+        asm.append("    pop r16")
+        asm.append("    ret")
+        asm.append("")
+        
+        return asm
+    
     def gerar(self, instrucoes_tac: Optional[List[InstrucaoTAC]] = None) -> str:
         """
         Gera o código Assembly completo
@@ -335,8 +615,33 @@ class GeradorAssemblyAVR:
         # Gerar prólogo
         self.codigo.extend(self.gerar_prologo())
         
-        # Gerar epílogo
-        self.codigo.extend(self.gerar_epilogo())
+        # Gerar epílogo (sem programa_principal se temos TAC)
+        epilogo = self.gerar_epilogo()
+        
+        # Se temos instruções TAC, gerar programa_principal
+        if instrucoes_tac:
+            # Remover placeholder do epílogo
+            epilogo_filtrado = []
+            skip_next = False
+            for i, linha in enumerate(epilogo):
+                if 'FUNÇÃO: Programa Principal' in linha:
+                    # Pular até encontrar a próxima linha vazia
+                    skip_next = True
+                    continue
+                if skip_next:
+                    if linha.strip() == '':
+                        skip_next = False
+                    continue
+                epilogo_filtrado.append(linha)
+            
+            # Adicionar epilogo sem placeholder
+            self.codigo.extend(epilogo_filtrado)
+            
+            # Gerar programa_principal real
+            self.codigo.extend(self.gerar_programa_principal(instrucoes_tac))
+        else:
+            # Usar epílogo com placeholder
+            self.codigo.extend(epilogo)
         
         # Gerar seção de dados
         self.codigo.extend(self.gerar_secao_data())
