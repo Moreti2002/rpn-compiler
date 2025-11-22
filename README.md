@@ -917,8 +917,20 @@ cat output/tac_original.txt
 - Contexto preservado entre expressões
 - Documentação completa em `docs/PARTE2_TAC_COMANDOS_ESPECIAIS.md`
 
+### ✅ Parte 3: Estruturas de Controle - COMPLETO ✅
+- **Parser Atualizado:** Suporte completo a operadores relacionais (>, <, ==, !=, >=, <=)
+- **Parser Atualizado:** Reconhecimento de estruturas IF e WHILE
+- **Parser Atualizado:** Suporte a expressões aninhadas em blocos
+- **IF (DECISAO):** Geração completa de TAC com `ifFalse` e `goto`
+- **WHILE (LACO):** Geração completa de TAC com loops e rótulos
+- **Rótulos:** Geração automática (L0, L1, L2, ...)
+- **Instruções novas:** IF_FALSE, GOTO, ROTULO
+- **Comparações:** Operações relacionais simples (sem IF/WHILE)
+- **Documentação:** Completa em `docs/PARTE3_TAC_CONTROLE.md`
+- **Testes:** 10 expressões de teste em `test_if_while.txt` (100% sucesso)
+- **TAC Gerado:** 71 instruções com 12 rótulos e 33 temporários
+
 ### ⏳ Próximas Implementações
-- [ ] Parte 3: Estruturas de controle (IF/WHILE)
 - [ ] Parte 4: Integração completa
 - [ ] Parte 5-8: Otimizações (Folding, Propagation, Dead Code)
 - [ ] Parte 9-13: Geração de Assembly AVR

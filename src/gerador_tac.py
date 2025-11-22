@@ -245,6 +245,74 @@ class GeradorTAC:
             
             return temp_resultado
         
+        # COMPARACAO: operação relacional simples (sem IF/WHILE)
+        elif tipo == 'COMPARACAO':
+            operador = self.obter_atributo(no, 'valor', '>')
+            filhos = self.obter_atributo(no, 'filhos', [])
+            
+            if len(filhos) < 2:
+                raise Exception(f"Comparação {operador} requer 2 operandos")
+            
+            # Processar operandos (recursivamente)
+            operando1_var = self.processar_no(filhos[0])
+            operando2_var = self.processar_no(filhos[1])
+            
+            # Criar temporário para o resultado da comparação
+            temp_resultado = self.novo_temporario()
+            
+            # Criar instrução de operação relacional
+            instrucao = InstrucaoTAC(
+                tipo='OPERACAO',
+                resultado=temp_resultado,
+                operando1=operando1_var,
+                operador=operador,
+                operando2=operando2_var,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao)
+            
+            return temp_resultado
+        
+        # CONDICAO: operação relacional usada em IF/WHILE
+        elif tipo == 'CONDICAO':
+            # Obter operador do valor do nó
+            operador = self.obter_atributo(no, 'valor', None)
+            if operador is None:
+                operador = self.obter_atributo(no, 'operador', '>')
+            
+            filhos = self.obter_atributo(no, 'filhos', [])
+            
+            # Tentar obter operandos de filhos ou diretamente dos atributos
+            if len(filhos) >= 2:
+                operando1_var = self.processar_no(filhos[0])
+                operando2_var = self.processar_no(filhos[1])
+            else:
+                # Operandos podem estar diretamente no nó
+                operando1_no = self.obter_atributo(no, 'operando1')
+                operando2_no = self.obter_atributo(no, 'operando2')
+                
+                if operando1_no and operando2_no:
+                    operando1_var = self.processar_no(operando1_no)
+                    operando2_var = self.processar_no(operando2_no)
+                else:
+                    raise Exception("CONDICAO sem operandos válidos")
+            
+            # Criar temporário para o resultado da comparação
+            temp_resultado = self.novo_temporario()
+            
+            # Criar instrução de operação relacional
+            instrucao = InstrucaoTAC(
+                tipo='OPERACAO',
+                resultado=temp_resultado,
+                operando1=operando1_var,
+                operador=operador,
+                operando2=operando2_var,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao)
+            
+            return temp_resultado
+        
         # EXPRESSÃO: processa recursivamente
         elif tipo == 'EXPRESSAO':
             filhos = self.obter_atributo(no, 'filhos', [])
@@ -339,6 +407,127 @@ class GeradorTAC:
             self.adicionar_instrucao(instrucao)
             
             return temp
+        
+        # DECISAO: estrutura IF
+        # Sintaxe RPN: (operando1 operando2 op_rel (bloco_v) (bloco_f) IF)
+        elif tipo == 'DECISAO':
+            filhos = self.obter_atributo(no, 'filhos', [])
+            
+            if len(filhos) < 3:
+                raise Exception("DECISAO requer 3 componentes: condição, bloco_verdadeiro, bloco_falso")
+            
+            # Filhos: [condição, bloco_verdadeiro, bloco_falso]
+            condicao_no = filhos[0]
+            bloco_v_no = filhos[1]
+            bloco_f_no = filhos[2]
+            
+            # Processar condição (operação relacional)
+            var_condicao = self.processar_no(condicao_no)
+            
+            # Criar rótulos
+            rotulo_falso = self.novo_rotulo()  # L0: início do bloco falso
+            rotulo_fim = self.novo_rotulo()    # L1: fim do IF
+            
+            # Gerar: ifFalse condicao goto L0
+            instrucao_if = InstrucaoTAC(
+                tipo='IF_FALSE',
+                resultado=rotulo_falso,
+                operando1=var_condicao,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao_if)
+            
+            # Processar bloco verdadeiro
+            resultado_v = self.processar_no(bloco_v_no)
+            
+            # Gerar: goto L1 (pular bloco falso)
+            instrucao_goto = InstrucaoTAC(
+                tipo='GOTO',
+                resultado=rotulo_fim,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao_goto)
+            
+            # Gerar: L0: (início do bloco falso)
+            instrucao_rotulo_falso = InstrucaoTAC(
+                tipo='ROTULO',
+                resultado=rotulo_falso,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao_rotulo_falso)
+            
+            # Processar bloco falso
+            resultado_f = self.processar_no(bloco_f_no)
+            
+            # Gerar: L1: (fim do IF)
+            instrucao_rotulo_fim = InstrucaoTAC(
+                tipo='ROTULO',
+                resultado=rotulo_fim,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao_rotulo_fim)
+            
+            # Resultado do IF é o último temporário usado
+            # (pode ser do bloco verdadeiro ou falso, dependendo da execução)
+            return resultado_v if resultado_v != 'UNKNOWN' else resultado_f
+        
+        # LACO: estrutura WHILE
+        # Sintaxe RPN: (operando1 operando2 op_rel (bloco) WHILE)
+        elif tipo == 'LACO':
+            filhos = self.obter_atributo(no, 'filhos', [])
+            
+            if len(filhos) < 2:
+                raise Exception("LACO requer 2 componentes: condição e bloco")
+            
+            # Filhos: [condição, bloco]
+            condicao_no = filhos[0]
+            bloco_no = filhos[1]
+            
+            # Criar rótulos
+            rotulo_inicio = self.novo_rotulo()  # L0: início do WHILE (avaliar condição)
+            rotulo_fim = self.novo_rotulo()     # L1: fim do WHILE
+            
+            # Gerar: L0: (início do loop)
+            instrucao_rotulo_inicio = InstrucaoTAC(
+                tipo='ROTULO',
+                resultado=rotulo_inicio,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao_rotulo_inicio)
+            
+            # Processar condição
+            var_condicao = self.processar_no(condicao_no)
+            
+            # Gerar: ifFalse condicao goto L1
+            instrucao_if = InstrucaoTAC(
+                tipo='IF_FALSE',
+                resultado=rotulo_fim,
+                operando1=var_condicao,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao_if)
+            
+            # Processar bloco do loop
+            resultado_bloco = self.processar_no(bloco_no)
+            
+            # Gerar: goto L0 (volta para início)
+            instrucao_goto = InstrucaoTAC(
+                tipo='GOTO',
+                resultado=rotulo_inicio,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao_goto)
+            
+            # Gerar: L1: (fim do loop)
+            instrucao_rotulo_fim = InstrucaoTAC(
+                tipo='ROTULO',
+                resultado=rotulo_fim,
+                linha=linha
+            )
+            self.adicionar_instrucao(instrucao_rotulo_fim)
+            
+            # Resultado do WHILE é o último temporário do bloco
+            return resultado_bloco if resultado_bloco != 'UNKNOWN' else 'UNKNOWN'
         
         # Outros tipos ainda não implementados
         else:

@@ -77,6 +77,14 @@ def converter_derivacao_para_arvore(derivacao):
         
         return criar_no('OPERACAO', operador, [operando1, operando2])
     
+    elif tipo == 'COMPARACAO':
+        # comparação relacional (sem IF/WHILE)
+        operador = derivacao.get('operador')
+        operando1 = converter_derivacao_para_arvore(derivacao.get('operando1'))
+        operando2 = converter_derivacao_para_arvore(derivacao.get('operando2'))
+        
+        return criar_no('COMPARACAO', operador, [operando1, operando2])
+    
     elif tipo == 'NUMERO':
         # número é folha
         valor = derivacao.get('valor')
@@ -88,7 +96,7 @@ def converter_derivacao_para_arvore(derivacao):
         return criar_no('IDENTIFICADOR', valor, [])
     
     elif tipo == 'COMANDO_ARMAZENAR':
-        # comando de armazenar memória
+        # comando de armazenar memória com número
         valor = derivacao.get('valor')
         identificador = derivacao.get('identificador')
         
@@ -96,6 +104,16 @@ def converter_derivacao_para_arvore(derivacao):
         filho_id = criar_no('IDENTIFICADOR', identificador, [])
         
         return criar_no('COMANDO_ARMAZENAR', None, [filho_valor, filho_id])
+    
+    elif tipo == 'COMANDO_ARMAZENAR_EXPRESSAO':
+        # comando de armazenar memória com expressão
+        expressao = derivacao.get('expressao')
+        identificador = derivacao.get('identificador')
+        
+        filho_expressao = converter_derivacao_para_arvore(expressao)
+        filho_id = criar_no('IDENTIFICADOR', identificador, [])
+        
+        return criar_no('COMANDO_ARMAZENAR', None, [filho_expressao, filho_id])
     
     elif tipo == 'COMANDO_RECUPERAR':
         # comando de recuperar memória
