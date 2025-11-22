@@ -942,8 +942,30 @@ cat output/tac_original.txt
   - `test_if_while.txt` - 10 expressões (71 instruções TAC)
   - `test_tac_comandos.txt` - 17 expressões (33 instruções TAC)
 
+### ✅ Parte 5-7: Otimizador TAC - IMPLEMENTADO ✅
+- **Módulo Otimizador:** `src/otimizador_tac.py` (507 linhas)
+- **Programa Principal:** `main_fase5.py` - Compilador com otimização integrada
+- **Técnicas Implementadas:**
+  - **Constant Folding**: Calcula operações constantes em tempo de compilação
+  - **Constant Propagation**: Substitui variáveis por valores conhecidos
+  - **Dead Code Elimination**: Remove código não utilizado
+- **Resultados Impressionantes:**
+  - **66.9% de redução** no código TAC (133 → 44 instruções)
+  - **154 otimizações aplicadas** em 35 expressões
+  - 100% taxa de sucesso (35/35 expressões)
+- **4 Níveis de Otimização:**
+  - `folding`: Apenas Constant Folding
+  - `propagation`: Folding + Propagation
+  - `dead_code`: Folding + Propagation + Dead Code
+  - `completo`: Todas as otimizações (padrão)
+- **Testes:**
+  - `test_otimizador.py` - 5 cenários de teste unitário
+  - `test_completo.txt` - 35 expressões com otimização (100% sucesso)
+- **Documentação:** Completa em `docs/PARTE5_OTIMIZADOR_TAC.md`
+- **Uso:** `python3 main_fase5.py test_completo.txt --nivel completo`
+
 ### ⏳ Próximas Implementações
-- [ ] Parte 5-8: Otimizações (Folding, Propagation, Dead Code)
+- [ ] Parte 8: Integração completa de otimizações ✅ (já implementado na Parte 5)
 - [ ] Parte 9-13: Geração de Assembly AVR
 - [ ] Parte 14-16: Programas de teste e validação no Arduino
 
