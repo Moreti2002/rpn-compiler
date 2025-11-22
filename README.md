@@ -621,3 +621,359 @@ python3 src/analisador_tipos.py
 
 ## Contribuições
 @Moreti2002
+
+---
+
+# 25  Fase 4 - Geração de Código Intermediário e Assembly
+
+Implementação da **geração de código intermediário** em formato Three Address Code (TAC) e otimização de código. Esta fase complementa o compilador completo, convertendo a árvore sintática atribuída (da Fase 3) em código TAC intermediário, preparando para a geração de código Assembly AVR.
+
+## Status da Implementação
+
+### ✅ Módulos Implementados
+
+#### 1. Gerador de TAC (`src/gerador_tac.py`)
+- **Classe `InstrucaoTAC`**: Representa instruções TAC
+  - Suporta tipos: ATRIBUICAO, OPERACAO, COPIA, ROTULO, GOTO, IF, IF_FALSE
+  - Formato de string legível para debug e saída
+  
+- **Classe `GeradorTAC`**: Gerador principal de código TAC
+  - Conversão de árvore sintática atribuída para TAC
+  - Alocação automática de variáveis temporárias (t0, t1, t2, ...)
+  - Geração de rótulos para estruturas de controle (L0, L1, L2, ...)
+  - Suporte a operações aritméticas: +, -, *, /, |, %, ^
+  - Suporte a operadores relacionais: >, <, >=, <=, ==, !=
+  - Processamento recursivo de expressões aninhadas
+  - Salvamento de TAC em arquivo texto
+
+#### 2. Teste do Gerador TAC (`tests/test_gerador_tac.py`)
+- Integração completa das 4 fases:
+  - Fase 1: Análise Léxica
+  - Fase 2: Análise Sintática
+  - Fase 3: Análise Semântica
+  - Fase 4: Geração de TAC
+- Processamento de arquivos de teste
+- Exibição colorida do TAC gerado
+- Geração de estatísticas detalhadas
+- Salvamento automático em `output/tac_original.txt`
+
+#### 3. Formatador de TAC (`utils/formatador_tac.py`)
+- Exibição colorida de instruções TAC
+- Geração de estatísticas detalhadas:
+  - Total de instruções
+  - Temporários utilizados
+  - Rótulos criados
+  - Distribuição por tipo de instrução
+- Formatação profissional dos relatórios
+
+## Formato do TAC Gerado
+
+### Tipos de Instruções
+
+#### Atribuição Simples
+```
+t1 = 5
+```
+
+#### Operação Binária
+```
+t2 = t0 + t1
+t3 = t1 * 2
+t4 = a / b
+```
+
+#### Operação Unária
+```
+t1 = - a
+```
+
+#### Cópia
+```
+a = b
+```
+
+#### Salto Incondicional
+```
+goto L1
+```
+
+#### Salto Condicional
+```
+if a goto L1
+ifFalse a goto L2
+```
+
+#### Rótulo
+```
+L0:
+L1:
+```
+
+## Como Executar
+
+### Teste do Gerador TAC
+```bash
+python3 tests/test_gerador_tac.py test_tac_simples.txt
+```
+
+Este comando executa todas as 4 fases em sequência:
+1. Análise léxica dos tokens
+2. Construção da árvore sintática
+3. Análise semântica e inferência de tipos
+4. Geração do código TAC
+
+### Arquivos de Teste
+
+#### `test_tac_simples.txt`
+Arquivo de teste com expressões válidas para geração de TAC:
+```
+# Operações aritméticas básicas
+(3 5 +)         # Adição
+(10 3 -)        # Subtração
+(4 7 *)         # Multiplicação
+(15 3 /)        # Divisão inteira
+
+# Operações com reais
+(10.0 3.0 |)    # Divisão real
+(2.5 1.5 +)     # Adição de reais
+
+# Expressões aninhadas
+((2 3 *) (4 2 /) +)    # (2*3) + (4/2)
+```
+
+### Saída do Programa
+
+#### Console
+O programa exibe:
+1. **Fase 1**: Lista de expressões válidas
+2. **Fases 2 e 3**: Árvores prontas para TAC
+3. **Fase 4**: TAC gerado para cada expressão
+4. **Resultados Finais**: 
+   - TAC completo colorido
+   - Estatísticas detalhadas
+   - Caminho do arquivo de saída
+
+#### Arquivo de Saída
+`output/tac_original.txt` contém:
+```
+============================================================
+THREE ADDRESS CODE (TAC)
+============================================================
+
+  1. t0 = 3
+  2. t1 = 5
+  3. t2 = t0 + t1
+  4. t3 = 10
+  5. t4 = 3
+  6. t5 = t3 - t4
+  ...
+
+============================================================
+Total de instruções: 15
+Temporários utilizados: 10
+Rótulos criados: 0
+============================================================
+```
+
+## Exemplo de Conversão
+
+### Expressão de Entrada
+```
+(3 5 +)
+```
+
+### Árvore Sintática Atribuída
+```json
+{
+  "tipo": "OPERACAO",
+  "tipo_inferido": "int",
+  "valor": "+",
+  "filhos": [
+    {
+      "tipo": "NUMERO",
+      "valor": "3",
+      "tipo_inferido": "int"
+    },
+    {
+      "tipo": "NUMERO",
+      "valor": "5",
+      "tipo_inferido": "int"
+    }
+  ]
+}
+```
+
+### TAC Gerado
+```
+1. t0 = 3
+2. t1 = 5
+3. t2 = t0 + t1
+```
+
+## Estrutura de Dados
+
+### Classe InstrucaoTAC
+```python
+class InstrucaoTAC:
+    def __init__(self, tipo, resultado=None, operando1=None, 
+                 operador=None, operando2=None, linha=None):
+        self.tipo = tipo           # ATRIBUICAO, OPERACAO, etc.
+        self.resultado = resultado # Variável destino
+        self.operando1 = operando1 # Primeiro operando
+        self.operador = operador   # Operador (+, -, *, etc.)
+        self.operando2 = operando2 # Segundo operando
+        self.linha = linha         # Linha original
+```
+
+### Classe GeradorTAC
+```python
+class GeradorTAC:
+    def __init__(self):
+        self.instrucoes = []           # Lista de instruções
+        self.contador_temporarios = 0  # Contador de temporários
+        self.contador_rotulos = 0      # Contador de rótulos
+        self.tabela_simbolos = {}      # Tabela de símbolos
+```
+
+## Recursos Implementados
+
+### ✅ Geração de TAC
+- [x] Conversão de expressões aritméticas
+- [x] Alocação de temporários
+- [x] Processamento recursivo de árvore
+- [x] Suporte a operadores aritméticos (+, -, *, /, |, %, ^)
+- [x] Suporte a números inteiros e reais
+- [x] Salvamento em arquivo
+
+### ⏳ Em Desenvolvimento
+- [ ] Otimização de código (Constant Folding)
+- [ ] Otimização (Constant Propagation)
+- [ ] Otimização (Dead Code Elimination)
+- [ ] Eliminação de saltos redundantes
+- [ ] Geração de código Assembly AVR
+- [ ] Suporte completo a estruturas de controle (IF/WHILE)
+- [ ] Suporte a comandos especiais (RES, MEM)
+- [ ] Compilação e teste no Arduino Uno
+
+## Próximos Passos
+
+### Fase 4 - Tarefas Pendentes
+
+1. **Aluno 2: Otimizador de TAC**
+   - Implementar `otimizarTAC(tac)`
+   - Constant folding
+   - Constant propagation
+   - Dead code elimination
+   - Eliminação de saltos redundantes
+
+2. **Aluno 3: Gerador Assembly AVR**
+   - Implementar `gerarAssembly(tacOtimizado)`
+   - Convenções de registradores
+   - Mapeamento TAC → Assembly
+   - Suporte a ponto flutuante (16 bits)
+
+3. **Aluno 4: Integração e Testes**
+   - Implementar `main()` integrado
+   - Criar arquivos de teste:
+     - `fatorial.txt` (fatorial de 1 a 8)
+     - `fibonacci.txt` (24 primeiros números)
+     - `taylor.txt` (série de Taylor do cosseno)
+   - Validação no Arduino Uno
+   - Documentação completa
+
+## Arquivos do Projeto - Fase 4
+
+```
+├── src/
+│   ├── gerador_tac.py           ✅ Gerador de TAC
+│   ├── otimizador_tac.py        ⏳ Otimizador (pendente)
+│   └── assembly_generator.py    ⏳ Gerador Assembly (pendente)
+├── tests/
+│   ├── test_gerador_tac.py      ✅ Teste integrado
+│   └── test_otimizador.py       ⏳ Teste otimizador (pendente)
+├── utils/
+│   └── formatador_tac.py        ✅ Formatador de TAC
+├── output/
+│   ├── tac_original.txt         ✅ TAC gerado
+│   └── tac_otimizado.txt        ⏳ TAC otimizado (pendente)
+├── programas_teste/
+│   ├── test_tac_simples.txt     ✅ Teste simples
+│   ├── fatorial.txt             ⏳ Pendente
+│   ├── fibonacci.txt            ⏳ Pendente
+│   └── taylor.txt               ⏳ Pendente
+└── README.md
+```
+
+## Documentação Técnica
+
+### Geração de TAC
+
+O processo de geração segue o algoritmo:
+
+1. **Percorrer árvore em pós-ordem**
+   - Processar filhos antes do nó pai
+   - Garantir que operandos sejam calculados antes da operação
+
+2. **Para cada nó numérico**
+   - Criar temporário novo
+   - Gerar instrução de atribuição
+
+3. **Para cada operação**
+   - Processar recursivamente operandos
+   - Criar temporário para resultado
+   - Gerar instrução de operação
+
+4. **Retornar variável resultado**
+   - Propagar resultado para nível superior
+
+### Exemplo Detalhado
+
+**Entrada:** `((2 3 *) (4 2 /) +)`
+
+**Processamento:**
+```
+1. Processar (2 3 *)
+   t0 = 2
+   t1 = 3
+   t2 = t0 * t1
+   
+2. Processar (4 2 /)
+   t3 = 4
+   t4 = 2
+   t5 = t3 / t4
+   
+3. Processar adição final
+   t6 = t2 + t5
+```
+
+## Validação e Testes
+
+### Teste Básico
+```bash
+# Executar teste simples
+python3 tests/test_gerador_tac.py test_tac_simples.txt
+```
+
+### Resultado Esperado
+```
+✓ Total: N expressões válidas
+✓ Total: N árvores prontas para TAC
+✓ M instruções TAC geradas
+✓ TAC salvo em: output/tac_original.txt
+```
+
+### Verificar Saída
+```bash
+# Visualizar TAC gerado
+cat output/tac_original.txt
+```
+
+## Observações Importantes
+
+1. **Integração Completa**: O gerador TAC está integrado com todas as fases anteriores
+2. **Compatibilidade**: Mantém compatibilidade com estruturas das Fases 1, 2 e 3
+3. **Extensibilidade**: Estrutura preparada para otimizações e geração de Assembly
+4. **Documentação**: Código totalmente documentado e comentado
+
+## Contribuições
+@Moreti2002

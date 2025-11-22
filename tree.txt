@@ -1,0 +1,105 @@
+.
+├── GRAMATICA.md
+├── README.md
+├── arvore_atribuida.json
+├── arvore_sintatica.json
+├── docs
+│   ├── ARVORE_ATRIBUIDA.md
+│   ├── ERROS_SEMANTICOS.md
+│   ├── GRAMATICA_ATRIBUTOS.md
+│   └── JULGAMENTO_TIPOS.md
+├── ex01.txt
+├── expressoes.txt
+├── main.py
+├── main_parser.py
+├── main_semantico.py
+├── main_semantico.py.bak
+├── output
+│   ├── tac_original.txt
+│   └── tac_teste.txt
+├── resultados.txt
+├── run_test.py
+├── src
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── analisador_controle.cpython-312.pyc
+│   │   ├── analisador_memoria.cpython-312.pyc
+│   │   ├── analisador_tipos.cpython-312.pyc
+│   │   ├── arvore_atribuida.cpython-312.pyc
+│   │   ├── assembly_generator.cpython-312.pyc
+│   │   ├── gerador_tac.cpython-312.pyc
+│   │   ├── gramatica_atributos.cpython-312.pyc
+│   │   ├── grammar.cpython-312.pyc
+│   │   ├── lexer.cpython-312.pyc
+│   │   ├── parser.cpython-312.pyc
+│   │   ├── syntax_tree.cpython-312.pyc
+│   │   ├── tabela_simbolos.cpython-312.pyc
+│   │   ├── token_reader.cpython-312.pyc
+│   │   └── token_types.cpython-312.pyc
+│   ├── analisador_controle.py
+│   ├── analisador_memoria.py
+│   ├── analisador_tipos.py
+│   ├── arvore_atribuida.py
+│   ├── assembly_generator.py
+│   ├── control_structures.py
+│   ├── executor.py
+│   ├── gerador_tac.py
+│   ├── gramatica_atributos.py
+│   ├── grammar.py
+│   ├── lexer.py
+│   ├── parser.py
+│   ├── syntax_tree.py
+│   ├── tabela_simbolos.py
+│   ├── token_reader.py
+│   └── token_types.py
+├── test1.txt
+├── test2.txt
+├── test3.txt
+├── test_fase3_1.txt
+├── test_fase3_2.txt
+├── test_fase3_3.txt
+├── test_simples.txt
+├── test_tac_simples.txt
+├── test_valido.txt
+├── tests
+│   ├── __init__.py
+│   ├── test_executor.py
+│   ├── test_gerador_tac.py
+│   ├── test_grammar.py
+│   ├── test_lexer.py
+│   └── test_parser.py
+├── texto1.txt
+├── texto2.txt
+├── texto3.txt
+├── tokens.txt
+├── tree.txt
+├── utils
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── formatador_relatorios.cpython-312.pyc
+│   │   └── formatador_tac.cpython-312.pyc
+│   ├── formatador_relatorios.py
+│   ├── formatador_tac.py
+│   └── util.py
+└── venv
+    ├── bin
+    │   ├── Activate.ps1
+    │   ├── activate
+    │   ├── activate.csh
+    │   ├── activate.fish
+    │   ├── pip
+    │   ├── pip3
+    │   ├── pip3.12
+    │   ├── python -> python3
+    │   ├── python3 -> /usr/bin/python3
+    │   └── python3.12 -> python3
+    ├── include
+    │   └── python3.12
+    ├── lib
+    │   └── python3.12
+    ├── lib64 -> lib
+    └── pyvenv.cfg
+
+15 directories, 88 files

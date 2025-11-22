@@ -1,0 +1,21 @@
+# Caminho: programas_teste/test_tac_simples.txt (ou tests/test_tac_simples.txt)
+# Arquivo de teste - TAC Parte 1
+# Expressões aritméticas simples em notação RPN
+
+# Operações básicas
+(3 5 +)
+(10 3 -)
+(4 7 *)
+(15 3 /)
+
+# Operações com números decimais
+(2.5 3.5 +)
+(10.0 2.0 -)
+
+# Expressões aninhadas simples
+((2 3 *) (4 2 /) +)
+((10 5 -) (2 3 +) *)
+
+# Operações com potência
+(2 8 ^)
+(5 2 ^)
