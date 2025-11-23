@@ -220,60 +220,25 @@ programa_principal:
     push r17
     push r18
 
-    ldi r16, 5  ; t0 = 5
-    mov r17, r16  ; NUM = t0
-    ; DEBUG: Imprimir NUM
-    mov r16, r17
-    call print_number
-    call print_newline
-    ldi r18, 1  ; t1 = 1
-    mov r19, r18  ; FAT = t1
-    ; DEBUG: Imprimir FAT
-    mov r16, r19
-    call print_number
-    call print_newline
+    ldi r16, 10  ; t0 = 10
+    ldi r17, 5  ; t1 = 5
+    mov r18, r16  ; copiar operando1
+    cp r18, r17  ; comparar t0 > t1
+    brlo cmp_end_0  ; se op1 < op2, resultado = 0
+    breq cmp_end_0  ; se op1 == op2, resultado = 0
+    ldi r18, 1  ; senão op1 > op2, resultado = 1
+    rjmp cmp_true_0
+cmp_end_0:
+    ldi r18, 0
+cmp_true_0:
+    tst r18  ; testar t2
+    breq L0  ; saltar se zero (falso)
+    ldi r19, 100  ; t3 = 100
+    mov r20, r19  ; RESULTA = t3
+    rjmp L1
 L0:
-    ldi r20, 1  ; t2 = 1
-    mov r21, r17  ; copiar operando1
-    cp r21, r20  ; comparar NUM > t2
-    brlo cmp_end_1  ; se op1 < op2, resultado = 0
-    breq cmp_end_1  ; se op1 == op2, resultado = 0
-    ldi r21, 1  ; senão op1 > op2, resultado = 1
-    rjmp cmp_true_1
-cmp_end_1:
-    ldi r21, 0
-cmp_true_1:
-    ; DEBUG: Imprimir t3 = NUM > t2
-    mov r16, r21
-    call print_number
-    call print_space
-    tst r21  ; testar t3
-    breq L1  ; saltar se zero (falso)
-    mov r22, r19  ; copiar operando1
-    mul r22, r17  ; t4 = FAT * NUM
-    mov r22, r0  ; resultado em r0 (8-bit)
-    ; DEBUG: Imprimir t4 = FAT * NUM
-    mov r16, r22
-    call print_number
-    call print_space
-    mov r19, r22  ; FAT = t4
-    ; DEBUG: Imprimir FAT
-    mov r16, r19
-    call print_number
-    call print_newline
-    ldi r23, 1  ; t5 = 1
-    mov r24, r17  ; copiar operando1
-    sub r24, r23  ; t6 = NUM - t5
-    ; DEBUG: Imprimir t6 = NUM - t5
-    mov r16, r24
-    call print_number
-    call print_space
-    mov r17, r24  ; NUM = t6
-    ; DEBUG: Imprimir NUM
-    mov r16, r17
-    call print_number
-    call print_newline
-    rjmp L0
+    ldi r21, 0  ; t4 = 0
+    mov r20, r21  ; RESULTA = t4
 L1:
 
     pop r18

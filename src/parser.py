@@ -348,12 +348,67 @@ def parse_operacao_ou_estrutura(contexto, tabela):
         contexto['posicao'] = pos_backup
         return parse_operacao(contexto, tabela)
 
+def parse_bloco_composto(contexto, tabela):
+    """
+    parseia um bloco que pode conter múltiplas expressões
+    sintaxe: (expr) ou ((expr1) (expr2) ...)
+    
+    Returns:
+        dict: expressão única ou bloco composto com lista de expressões
+    """
+    # ler o bloco
+    match(PARENTESE_ABRE, contexto)
+    
+    # verificar se o primeiro token é parêntese abre (bloco composto)
+    token_inicio = token_atual(contexto)
+    
+    if token_inicio and token_inicio['tipo'] == PARENTESE_ABRE:
+        # bloco composto com múltiplas expressões: ((expr1) (expr2) ...)
+        expressoes = []
+        
+        while True:
+            token = token_atual(contexto)
+            
+            # se encontrar fecha parêntese, terminou o bloco composto
+            if token and token['tipo'] == PARENTESE_FECHA:
+                match(PARENTESE_FECHA, contexto)
+                break
+            
+            # se encontrar abre parêntese, é uma expressão
+            elif token and token['tipo'] == PARENTESE_ABRE:
+                expr = parse_expressao(contexto, tabela)
+                expressoes.append(expr)
+            
+            else:
+                raise ParserError(
+                    f"Esperado '(' ou ')' em bloco composto, encontrado {token}",
+                    posicao=token.get('posicao') if token else None
+                )
+        
+        # retornar bloco composto
+        return {
+            'tipo': 'BLOCO_COMPOSTO',
+            'expressoes': expressoes
+        }
+    
+    else:
+        # bloco simples com uma única expressão: (expr)
+        # parsear o conteúdo da expressão
+        conteudo = parse_conteudo(contexto, tabela)
+        match(PARENTESE_FECHA, contexto)
+        
+        return {
+            'tipo': 'EXPRESSAO',
+            'conteudo': conteudo
+        }
+
 def parse_comparacao_ou_estrutura(contexto, tabela):
     """
     decide entre comparação simples ou estrutura de controle (IF/WHILE)
     comparação simples: (A B op_rel)
     estrutura IF: (A B op_rel (bloco_true) (bloco_false) IF)
     estrutura WHILE: (A B op_rel (bloco) WHILE)
+    bloco pode ser: (expr) ou ((expr1) (expr2) ...)
     """
     # parsear operandos e operador relacional
     operando1 = parse_operando(contexto, tabela)
@@ -379,16 +434,16 @@ def parse_comparacao_ou_estrutura(contexto, tabela):
     
     # se é parêntese abre, pode ser estrutura de controle
     elif token_seguinte and token_seguinte['tipo'] == PARENTESE_ABRE:
-        # ler primeiro bloco
-        bloco1 = parse_expressao(contexto, tabela)
+        # ler primeiro bloco (pode ser composto)
+        bloco1 = parse_bloco_composto(contexto, tabela)
         
         # verificar o próximo token após bloco1
         token_pos_bloco1 = token_atual(contexto)
         
         # se é outro parêntese abre, pode ser IF (dois blocos)
         if token_pos_bloco1 and token_pos_bloco1['tipo'] == PARENTESE_ABRE:
-            # ler segundo bloco
-            bloco2 = parse_expressao(contexto, tabela)
+            # ler segundo bloco (pode ser composto)
+            bloco2 = parse_bloco_composto(contexto, tabela)
             
             # agora deve ter IF
             token_palavra = token_atual(contexto)

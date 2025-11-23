@@ -18,9 +18,14 @@ RESTO_IDENTIFICADOR → identificador OPERADOR_ARIT
 RESTO_IDENTIFICADOR → EXPRESSAO OPERADOR_TOTAL
 RESTO_IDENTIFICADOR → ε
 OPERADOR_TOTAL → OPERADOR_ARIT
-OPERADOR_TOTAL → OPERADOR_REL EXPRESSAO PALAVRA_CONTROLE
-PALAVRA_CONTROLE → EXPRESSAO IF
+OPERADOR_TOTAL → OPERADOR_REL BLOCO PALAVRA_CONTROLE
+PALAVRA_CONTROLE → BLOCO IF
 PALAVRA_CONTROLE → WHILE
+BLOCO → EXPRESSAO
+BLOCO → BLOCO_COMPOSTO
+BLOCO_COMPOSTO → ( LISTA_EXPRESSOES )
+LISTA_EXPRESSOES → EXPRESSAO LISTA_EXPRESSOES
+LISTA_EXPRESSOES → EXPRESSAO
 OPERACAO → OPERANDO OPERANDO OPERADOR_ARIT
 OPERANDO → numero
 OPERANDO → identificador
@@ -38,6 +43,40 @@ OPERADOR_REL → !=
 OPERADOR_REL → >=
 OPERADOR_REL → <=
 ```
+
+## Extensão: Blocos Compostos
+
+A gramática foi estendida para suportar **blocos compostos** em estruturas de controle.
+
+### Sintaxe
+
+**Bloco Simples** (original):
+```
+(cond (expr) WHILE)
+(cond (expr_true) (expr_false) IF)
+```
+
+**Bloco Composto** (novo):
+```
+(cond ((expr1) (expr2) ...) WHILE)
+(cond ((expr1) (expr2)) ((expr3) (expr4)) IF)
+```
+
+### Exemplos
+
+**Fatorial com WHILE composto**:
+```
+(5 NUM)
+(1 FAT)
+(NUM 1 > (((FAT NUM *) FAT) ((NUM 1 -) NUM)) WHILE)
+```
+
+**IF com blocos compostos**:
+```
+(X 10 > (((X 1 -) X) (1 FLAG)) ((0 FLAG)) IF)
+```
+
+Ver documentação completa em: `docs/BLOCOS_COMPOSTOS.md`
 
 ## Conjuntos FIRST
 

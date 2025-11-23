@@ -1,0 +1,7 @@
+# Teste de WHILE com múltiplas expressões no bloco
+# Nova sintaxe: (cond ((expr1) (expr2) ...) WHILE)
+
+# Calcular 5! = 120
+(5 NUM)
+(1 FAT)
+(NUM 1 > (((FAT NUM *) FAT) ((NUM 1 -) NUM)) WHILE)

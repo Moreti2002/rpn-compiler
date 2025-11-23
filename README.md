@@ -89,12 +89,19 @@ python3 main.py examples/test_completo.txt
 ```
 
 ### 2. Gerar Assembly para Arduino
+
 ```bash
 python3 main_assembly.py examples/test_arduino_simples.txt \
     --output output/programa.s \
     --nivel completo \
     --baud 9600
 ```
+
+**Flags disponíveis:**
+- `--output`: Arquivo Assembly de saída (.s)
+- `--nivel`: Nível de otimização (sem_otimizacao, folding, propagacao, dead_code, completo)
+- `--baud`: Taxa UART (9600 ou 115200, padrão: 9600)
+- `--debug`: Adiciona prints de debug via UART (veja seção abaixo)
 
 ### 3. Upload para Arduino (Windows)
 ```batch
@@ -117,6 +124,64 @@ pytest tests/
 # Testes específicos
 pytest tests/test_assembly_parte9.py   # 6/6 ✅
 pytest tests/test_assembly_parte10.py  # 10/10 ✅
+```
+
+### 6. Modo Debug (Visualização de Resultados)
+
+A flag `--debug` adiciona instruções de impressão via UART após cada atribuição de variável, permitindo visualizar o fluxo de execução e resultados no Serial Monitor do Arduino.
+
+**Como usar:**
+
+```bash
+# Compilar com debug ativado
+python3 main_assembly.py examples/test_while_composto.txt \
+    --output output/test_debug.s \
+    --debug \
+    --nivel sem_otimizacao
+```
+
+**Comportamento:**
+- Imprime valor de cada variável após atribuição (NUM, FAT, FIB, etc.)
+- Adiciona nova linha após cada variável para melhor legibilidade
+- Preserva registradores durante prints (push/pop automático)
+
+**Exemplo de saída serial:**
+
+```
+Compilador RPN - Arduino Uno
+5         <- NUM inicial
+1         <- FAT inicial
+1 5 5     <- condição, FAT*NUM, FAT
+4 4       <- NUM-1, NUM
+1 20 20   <- condição, FAT*NUM, FAT
+3 3       <- NUM-1, NUM
+1 60 60   <- condição, FAT*NUM, FAT
+2 2       <- NUM-1, NUM
+1 120 120 <- condição, FAT*NUM, FAT (5! = 120)
+1 1       <- NUM-1, NUM
+0         <- condição false, sai do loop
+```
+
+**Limitações:**
+- Aumenta o tamanho do código Assembly (~30-50% mais linhas)
+- Programas complexos podem esgotar registradores disponíveis
+- Recomenda-se usar `--nivel sem_otimizacao` com `--debug`
+- Otimizações agressivas podem criar loops infinitos ao propagar constantes
+
+**Teste rápido no Arduino:**
+
+```bash
+# 1. Compilar com debug
+python3 main_assembly.py examples/test_while_composto.txt \
+    --output output/test_debug.s \
+    --debug \
+    --nivel sem_otimizacao
+
+# 2. Fazer upload (Windows)
+upload_arduino.bat output\test_debug.s COM8
+
+# 3. Abrir Serial Monitor (9600 baud)
+# Resultado esperado: Cálculo de 5! = 120
 ```
 
 ## Exemplos de uso

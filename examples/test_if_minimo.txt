@@ -1,0 +1,3 @@
+# Teste IF mínimo - sem debug print para evitar falta de registradores
+# Deve armazenar 100 em RESULTA (porque 10 > 5 é verdadeiro)
+(10 5 > (100 RESULTA) (0 RESULTA) IF)

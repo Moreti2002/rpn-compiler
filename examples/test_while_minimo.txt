@@ -1,0 +1,11 @@
+# Teste WHILE mínimo
+# CONTADOR inicia em 0 e incrementa até 5
+# Formato: (operando1 operando2 op_rel (bloco) WHILE)
+
+# Inicializar CONTADOR = 0
+(0 CONTADOR)
+
+# Loop: enquanto CONTADOR < 5, fazer CONTADOR = CONTADOR + 1
+(CONTADOR 5 < ((CONTADOR 1 +) CONTADOR) WHILE)
+
+# Ao final, CONTADOR deve ser 5

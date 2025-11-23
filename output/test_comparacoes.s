@@ -220,22 +220,34 @@ programa_principal:
     push r17
     push r18
 
-    ldi r16, 5  ; t0 = 5
-    mov r17, r16  ; NUM = t0
-    ; DEBUG: Imprimir NUM
-    mov r16, r17
+    ldi r16, 10  ; t0 = 10
+    ; Salvar A na SRAM (0x0120)
+    sts 0x0120, r16
+    ldi r17, 20  ; t1 = 20
+    ; Salvar B na SRAM (0x0121)
+    sts 0x0121, r17
+    ; Carregar A da SRAM (0x0120)
+    lds r18, 0x0120
+    ; Carregar B da SRAM (0x0121)
+    lds r19, 0x0121
+    mov r20, r18  ; copiar operando1
+    cp r20, r19  ; comparar A < B
+    brlo cmp_true_0  ; se menor (unsigned), resultado = 1
+    ldi r20, 0  ; senão, resultado = 0
+    rjmp cmp_end_0
+cmp_true_0:
+    ldi r20, 1
+cmp_end_0:
+    ; DEBUG: Imprimir t2 = A < B
+    mov r16, r20
     call print_number
-    call print_newline
-    ldi r18, 1  ; t1 = 1
-    mov r19, r18  ; FAT = t1
-    ; DEBUG: Imprimir FAT
-    mov r16, r19
-    call print_number
-    call print_newline
-L0:
-    ldi r20, 1  ; t2 = 1
-    mov r21, r17  ; copiar operando1
-    cp r21, r20  ; comparar NUM > t2
+    call print_space
+    ; Carregar A da SRAM (0x0120)
+    lds r19, 0x0120
+    ; Carregar B da SRAM (0x0121)
+    lds r18, 0x0121
+    mov r21, r19  ; copiar operando1
+    cp r21, r18  ; comparar A > B
     brlo cmp_end_1  ; se op1 < op2, resultado = 0
     breq cmp_end_1  ; se op1 == op2, resultado = 0
     ldi r21, 1  ; senão op1 > op2, resultado = 1
@@ -243,38 +255,42 @@ L0:
 cmp_end_1:
     ldi r21, 0
 cmp_true_1:
-    ; DEBUG: Imprimir t3 = NUM > t2
+    ; DEBUG: Imprimir t3 = A > B
     mov r16, r21
     call print_number
     call print_space
-    tst r21  ; testar t3
-    breq L1  ; saltar se zero (falso)
-    mov r22, r19  ; copiar operando1
-    mul r22, r17  ; t4 = FAT * NUM
-    mov r22, r0  ; resultado em r0 (8-bit)
-    ; DEBUG: Imprimir t4 = FAT * NUM
+    ; Carregar A da SRAM (0x0120)
+    lds r18, 0x0120
+    ; Carregar B da SRAM (0x0121)
+    lds r19, 0x0121
+    mov r22, r18  ; copiar operando1
+    cp r22, r19  ; comparar A == B
+    breq cmp_true_2  ; se igual, resultado = 1
+    ldi r22, 0  ; senão, resultado = 0
+    rjmp cmp_end_2
+cmp_true_2:
+    ldi r22, 1
+cmp_end_2:
+    ; DEBUG: Imprimir t4 = A == B
     mov r16, r22
     call print_number
     call print_space
-    mov r19, r22  ; FAT = t4
-    ; DEBUG: Imprimir FAT
-    mov r16, r19
-    call print_number
-    call print_newline
-    ldi r23, 1  ; t5 = 1
-    mov r24, r17  ; copiar operando1
-    sub r24, r23  ; t6 = NUM - t5
-    ; DEBUG: Imprimir t6 = NUM - t5
-    mov r16, r24
+    ; Carregar A da SRAM (0x0120)
+    lds r19, 0x0120
+    ; Carregar B da SRAM (0x0121)
+    lds r18, 0x0121
+    mov r23, r19  ; copiar operando1
+    cp r23, r18  ; comparar A != B
+    brne cmp_true_3  ; se diferente, resultado = 1
+    ldi r23, 0  ; senão, resultado = 0
+    rjmp cmp_end_3
+cmp_true_3:
+    ldi r23, 1
+cmp_end_3:
+    ; DEBUG: Imprimir t5 = A != B
+    mov r16, r23
     call print_number
     call print_space
-    mov r17, r24  ; NUM = t6
-    ; DEBUG: Imprimir NUM
-    mov r16, r17
-    call print_number
-    call print_newline
-    rjmp L0
-L1:
 
     pop r18
     pop r17

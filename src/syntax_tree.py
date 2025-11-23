@@ -151,6 +151,18 @@ def converter_derivacao_para_arvore(derivacao):
         
         return criar_no('LACO', 'WHILE', [filho_cond, filho_bloco])
     
+    elif tipo == 'BLOCO_COMPOSTO':
+        # bloco com múltiplas expressões: ((expr1) (expr2) ...)
+        expressoes = derivacao.get('expressoes', [])
+        
+        # converter cada expressão para árvore
+        filhos = []
+        for expr in expressoes:
+            filho = converter_derivacao_para_arvore(expr)
+            filhos.append(filho)
+        
+        return criar_no('BLOCO_COMPOSTO', None, filhos)
+    
     else:
         raise SyntaxTreeError(f"Tipo desconhecido: {tipo}")
 

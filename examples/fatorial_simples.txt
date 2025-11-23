@@ -1,0 +1,37 @@
+# Teste de Fatorial Simplificado - Calcula 1! até 5!
+# Demonstra multiplicação acumulada
+
+# 1! = 1
+(1 FAT)
+
+# 2! = 2
+(2 NUM)
+(1 FAT)
+((FAT NUM *) FAT)
+
+# 3! = 6
+(3 NUM)
+(1 FAT)
+((FAT NUM *) FAT)
+((NUM 1 -) NUM)
+((FAT NUM *) FAT)
+
+# 4! = 24
+(4 NUM)
+(1 FAT)
+((FAT NUM *) FAT)
+((NUM 1 -) NUM)
+((FAT NUM *) FAT)
+((NUM 1 -) NUM)
+((FAT NUM *) FAT)
+
+# 5! = 120
+(5 NUM)
+(1 FAT)
+((FAT NUM *) FAT)
+((NUM 1 -) NUM)
+((FAT NUM *) FAT)
+((NUM 1 -) NUM)
+((FAT NUM *) FAT)
+((NUM 1 -) NUM)
+((FAT NUM *) FAT)

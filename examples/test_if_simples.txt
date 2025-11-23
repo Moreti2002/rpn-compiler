@@ -1,0 +1,13 @@
+# Teste de IF/ELSE simples
+# Sintaxe: (condição (valor_true destino) (valor_false destino) IF)
+
+# Teste 1: 10 > 5 → deve printar 100
+(10 5 > (100 RESULT1) (0 RESULT1) IF)
+
+# Teste 2: 3 > 8 → deve printar 0
+(3 8 > (100 RESULT2) (0 RESULT2) IF)
+
+# Teste 3: Com operações - se 10 >= 10, calcula 10+20=30, senão calcula 10-20=-10
+(10 A)
+(20 B)
+(A B >= ((A B +) RESULT3) ((A B -) RESULT3) IF)

@@ -437,8 +437,15 @@ class GeradorTAC:
             )
             self.adicionar_instrucao(instrucao_if)
             
-            # Processar bloco verdadeiro
-            resultado_v = self.processar_no(bloco_v_no)
+            # Processar bloco verdadeiro (pode ser composto)
+            tipo_bloco_v = self.obter_atributo(bloco_v_no, 'tipo', '')
+            if tipo_bloco_v == 'BLOCO_COMPOSTO':
+                expressoes_v = self.obter_atributo(bloco_v_no, 'expressoes', [])
+                resultado_v = 'UNKNOWN'
+                for expr in expressoes_v:
+                    resultado_v = self.processar_no(expr)
+            else:
+                resultado_v = self.processar_no(bloco_v_no)
             
             # Gerar: goto L1 (pular bloco falso)
             instrucao_goto = InstrucaoTAC(
@@ -456,8 +463,15 @@ class GeradorTAC:
             )
             self.adicionar_instrucao(instrucao_rotulo_falso)
             
-            # Processar bloco falso
-            resultado_f = self.processar_no(bloco_f_no)
+            # Processar bloco falso (pode ser composto)
+            tipo_bloco_f = self.obter_atributo(bloco_f_no, 'tipo', '')
+            if tipo_bloco_f == 'BLOCO_COMPOSTO':
+                expressoes_f = self.obter_atributo(bloco_f_no, 'expressoes', [])
+                resultado_f = 'UNKNOWN'
+                for expr in expressoes_f:
+                    resultado_f = self.processar_no(expr)
+            else:
+                resultado_f = self.processar_no(bloco_f_no)
             
             # Gerar: L1: (fim do IF)
             instrucao_rotulo_fim = InstrucaoTAC(
@@ -508,7 +522,19 @@ class GeradorTAC:
             self.adicionar_instrucao(instrucao_if)
             
             # Processar bloco do loop
-            resultado_bloco = self.processar_no(bloco_no)
+            # Verificar se é bloco composto (múltiplas expressões)
+            tipo_bloco = self.obter_atributo(bloco_no, 'tipo', '')
+            
+            if tipo_bloco == 'BLOCO_COMPOSTO':
+                # Processar cada expressão do bloco composto
+                # As expressões estão nos filhos do nó BLOCO_COMPOSTO
+                filhos = bloco_no.get('filhos', [])
+                resultado_bloco = 'UNKNOWN'
+                for filho in filhos:
+                    resultado_bloco = self.processar_no(filho)
+            else:
+                # Bloco simples com uma expressão
+                resultado_bloco = self.processar_no(bloco_no)
             
             # Gerar: goto L0 (volta para início)
             instrucao_goto = InstrucaoTAC(

@@ -220,61 +220,63 @@ programa_principal:
     push r17
     push r18
 
-    ldi r16, 5  ; t0 = 5
-    mov r17, r16  ; NUM = t0
-    ; DEBUG: Imprimir NUM
-    mov r16, r17
-    call print_number
-    call print_newline
-    ldi r18, 1  ; t1 = 1
-    mov r19, r18  ; FAT = t1
-    ; DEBUG: Imprimir FAT
-    mov r16, r19
-    call print_number
-    call print_newline
+    ldi r16, 1  ; FAT = 1
+    ldi r17, 2  ; NUM = 2
+    ldi r16, 1  ; FAT = 1
 L0:
-    ldi r20, 1  ; t2 = 1
-    mov r21, r17  ; copiar operando1
-    cp r21, r20  ; comparar NUM > t2
-    brlo cmp_end_1  ; se op1 < op2, resultado = 0
-    breq cmp_end_1  ; se op1 == op2, resultado = 0
-    ldi r21, 1  ; senão op1 > op2, resultado = 1
-    rjmp cmp_true_1
-cmp_end_1:
-    ldi r21, 0
-cmp_true_1:
-    ; DEBUG: Imprimir t3 = NUM > t2
-    mov r16, r21
-    call print_number
-    call print_space
-    tst r21  ; testar t3
-    breq L1  ; saltar se zero (falso)
-    mov r22, r19  ; copiar operando1
-    mul r22, r17  ; t4 = FAT * NUM
-    mov r22, r0  ; resultado em r0 (8-bit)
-    ; DEBUG: Imprimir t4 = FAT * NUM
-    mov r16, r22
-    call print_number
-    call print_space
-    mov r19, r22  ; FAT = t4
-    ; DEBUG: Imprimir FAT
-    mov r16, r19
-    call print_number
-    call print_newline
-    ldi r23, 1  ; t5 = 1
-    mov r24, r17  ; copiar operando1
-    sub r24, r23  ; t6 = NUM - t5
-    ; DEBUG: Imprimir t6 = NUM - t5
-    mov r16, r24
-    call print_number
-    call print_space
-    mov r17, r24  ; NUM = t6
-    ; DEBUG: Imprimir NUM
-    mov r16, r17
-    call print_number
-    call print_newline
+    ; ifFalse 1 goto L1 - sempre verdadeiro, não pula
+    ldi r16, 2  ; FAT = 2
+    ldi r17, 1  ; NUM = 1
     rjmp L0
 L1:
+    ldi r17, 3  ; NUM = 3
+    ldi r16, 1  ; FAT = 1
+L2:
+    ; ifFalse 1 goto L3 - sempre verdadeiro, não pula
+    ldi r16, 3  ; FAT = 3
+    ldi r17, 2  ; NUM = 2
+    rjmp L2
+L3:
+    ldi r17, 4  ; NUM = 4
+    ldi r16, 1  ; FAT = 1
+L4:
+    ; ifFalse 1 goto L5 - sempre verdadeiro, não pula
+    ldi r16, 4  ; FAT = 4
+    ldi r17, 3  ; NUM = 3
+    rjmp L4
+L5:
+    ldi r17, 5  ; NUM = 5
+    ldi r16, 1  ; FAT = 1
+L6:
+    ; ifFalse 1 goto L7 - sempre verdadeiro, não pula
+    ldi r16, 5  ; FAT = 5
+    ldi r17, 4  ; NUM = 4
+    rjmp L6
+L7:
+    ldi r17, 6  ; NUM = 6
+    ldi r16, 1  ; FAT = 1
+L8:
+    ; ifFalse 1 goto L9 - sempre verdadeiro, não pula
+    ldi r16, 6  ; FAT = 6
+    ldi r17, 5  ; NUM = 5
+    rjmp L8
+L9:
+    ldi r17, 7  ; NUM = 7
+    ldi r16, 1  ; FAT = 1
+L10:
+    ; ifFalse 1 goto L11 - sempre verdadeiro, não pula
+    ldi r16, 7  ; FAT = 7
+    ldi r17, 6  ; NUM = 6
+    rjmp L10
+L11:
+    ldi r17, 8  ; NUM = 8
+    ldi r16, 1  ; FAT = 1
+L12:
+    ; ifFalse 1 goto L13 - sempre verdadeiro, não pula
+    ldi r16, 8  ; FAT = 8
+    ldi r17, 7  ; NUM = 7
+    rjmp L12
+L13:
 
     pop r18
     pop r17

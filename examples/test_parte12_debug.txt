@@ -1,0 +1,18 @@
+# Teste Básico da Parte 12 com Debug Print
+# Demonstra: Comparações, IF/ELSE e WHILE com saída serial
+
+# === TESTE 1: IF/ELSE ===
+# Se 15 >= 10, armazena 100 em RESULT, senão armazena 0
+# Resultado esperado: RESULT = 100
+(15 10 >= (100 RESULT) (0 RESULT) IF)
+
+# === TESTE 2: WHILE - Contador ===
+# Inicializa contador em 0
+(0 CONTADOR)
+
+# Loop: enquanto CONTADOR < 3, incrementa CONTADOR
+# Resultado esperado: CONTADOR = 3
+(CONTADOR 3 < ((CONTADOR 1 +) CONTADOR) WHILE)
+
+# Para ver os resultados, precisamos imprimir manualmente
+# Vou adicionar expressões simples que serão printadas com --debug

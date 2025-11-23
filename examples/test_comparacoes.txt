@@ -1,0 +1,18 @@
+# Teste de Estrutura IF simples
+# Objetivo: Testar comparação e salto condicional
+
+# Armazenar 10 em A e 20 em B
+(10 A)
+(20 B)
+
+# Comparar se A < B (deve resultar em 1 = verdadeiro)
+(A B <)
+
+# Comparar se A > B (deve resultar em 0 = falso)  
+(A B >)
+
+# Comparar se A == B (deve resultar em 0 = falso)
+(A B ==)
+
+# Comparar se A != B (deve resultar em 1 = verdadeiro)
+(A B !=)

@@ -1,0 +1,41 @@
+# Teste de Fatorial - Calcula n! para n=1 até 8
+# Demonstra: laço WHILE com múltiplas expressões, multiplicação, variáveis
+# Sintaxe estendida: (cond ((expr1) (expr2) ...) WHILE)
+
+# 1! = 1
+(1 FAT)
+
+# 2! = 2
+(2 NUM)
+(1 FAT)
+(NUM 1 > (((FAT NUM *) FAT) ((NUM 1 -) NUM)) WHILE)
+
+# 3! = 6
+(3 NUM)
+(1 FAT)
+(NUM 1 > (((FAT NUM *) FAT) ((NUM 1 -) NUM)) WHILE)
+
+# 4! = 24
+(4 NUM)
+(1 FAT)
+(NUM 1 > (((FAT NUM *) FAT) ((NUM 1 -) NUM)) WHILE)
+
+# 5! = 120
+(5 NUM)
+(1 FAT)
+(NUM 1 > (((FAT NUM *) FAT) ((NUM 1 -) NUM)) WHILE)
+
+# 6! = 720
+(6 NUM)
+(1 FAT)
+(NUM 1 > (((FAT NUM *) FAT) ((NUM 1 -) NUM)) WHILE)
+
+# 7! = 5040
+(7 NUM)
+(1 FAT)
+(NUM 1 > (((FAT NUM *) FAT) ((NUM 1 -) NUM)) WHILE)
+
+# 8! = 40320
+(8 NUM)
+(1 FAT)
+(NUM 1 > (((FAT NUM *) FAT) ((NUM 1 -) NUM)) WHILE)

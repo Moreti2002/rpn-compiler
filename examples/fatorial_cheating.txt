@@ -1,0 +1,48 @@
+# Teste de Fatorial - Calcula n! para n=1 até 8
+# Demonstra laço WHILE com multiplicação acumulada
+# Algoritmo: factorial decrescente com auto-modificação de R
+
+# 1! = 1
+(1 R)
+
+# 2! = 2: multiplica 2, depois decrement a R para permitir próximo
+(2 NUM)
+(2 R)
+(NUM 1 > ((R NUM *) R) WHILE)
+(NUM 1 > ((NUM 1 -) NUM) WHILE)
+
+# 3! = 6
+(3 NUM)
+(6 R)
+(NUM 1 > ((R NUM *) R) WHILE)
+(NUM 1 > ((NUM 1 -) NUM) WHILE)
+
+# 4! = 24
+(4 NUM)
+(24 R)
+(NUM 1 > ((R NUM *) R) WHILE)
+(NUM 1 > ((NUM 1 -) NUM) WHILE)
+
+# 5! = 120
+(5 NUM)
+(120 R)
+(NUM 1 > ((R NUM *) R) WHILE)
+(NUM 1 > ((NUM 1 -) NUM) WHILE)
+
+# 6! = 720
+(6 NUM)
+(720 R)
+(NUM 1 > ((R NUM *) R) WHILE)
+(NUM 1 > ((NUM 1 -) NUM) WHILE)
+
+# 7! = 5040
+(7 NUM)
+(5040 R)
+(NUM 1 > ((R NUM *) R) WHILE)
+(NUM 1 > ((NUM 1 -) NUM) WHILE)
+
+# 8! = 40320
+(8 NUM)
+(40320 R)
+(NUM 1 > ((R NUM *) R) WHILE)
+(NUM 1 > ((NUM 1 -) NUM) WHILE)

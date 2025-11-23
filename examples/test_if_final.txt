@@ -1,0 +1,20 @@
+# Teste de IF/ELSE - Identificadores sem números no nome
+# Formato: (operando1 operando2 op_rel (expressao_true) (expressao_false) IF)
+
+# Teste 1: Se 10 > 5, então RESULTA = 100, senão RESULTA = 0
+# Deve imprimir 100
+(10 5 > (100 RESULTA) (0 RESULTA) IF)
+
+# Teste 2: Se 3 > 8, então RESULTB = 100, senão RESULTB = 0  
+# Deve imprimir 0
+(3 8 > (100 RESULTB) (0 RESULTB) IF)
+
+# Teste 3: Se 10 == 10, então RESULTC = 1, senão RESULTC = 0
+# Deve imprimir 1
+(10 10 == (1 RESULTC) (0 RESULTC) IF)
+
+# Teste 4: IF com operações - se 15 >= 10, calcula 15+10=25, senão calcula 15-10=5
+# Deve imprimir 25
+(15 A)
+(10 B)
+(A B >= ((A B +) RESULTD) ((A B -) RESULTD) IF)

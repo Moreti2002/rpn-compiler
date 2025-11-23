@@ -1,0 +1,10 @@
+# Fatorial mínimo - apenas 3 testes
+(1 FAT)
+(2 NUM)
+(1 FAT)
+((FAT NUM *) FAT)
+(3 NUM)
+(1 FAT)
+((FAT NUM *) FAT)
+((NUM 1 -) NUM)
+((FAT NUM *) FAT)
