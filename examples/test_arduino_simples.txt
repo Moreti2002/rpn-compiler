@@ -1,0 +1,12 @@
+# Teste simples para Arduino
+# Operações básicas sem loops
+
+# Atribuições simples
+(10 X)
+(20 Y)
+
+# Operação aritmética
+(X Y +)
+
+# Resultado
+(30 RESULTADO)

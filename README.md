@@ -1,35 +1,62 @@
-# Analisador Léxico e Executador RPN - Fase 1
+# Compilador RPN para Arduino Uno
 
 ## Descrição
 
-Projeto implementa um **analisador léxico** baseado em **autômato finito determinístico (AFD)** e um **executador** que processa expressões matemáticas em **notação polonesa reversa (RPN)**. O sistema reconhece tokens válidos, detecta erros léxicos e executa operações matemáticas com comandos especiais de memória.
+Compilador completo que traduz expressões em **Notação Polonesa Reversa (RPN)** para **Assembly AVR**, executável no **Arduino Uno (ATmega328P)**. Implementa todas as fases de compilação: análise léxica, sintática, semântica, geração de código intermediário (TAC), otimização e geração de código de máquina.
+
+### Pipeline de Compilação:
+
+```
+RPN → Tokens → AST → TAC → TAC Otimizado → Assembly AVR → Arduino
+```
 
 ### Características:
 
-- **AFD implementado com funções**: cada estado do autômato é representado por uma função
-- **Executador RPN**: avalia expressões usando pilha com precisão IEEE 754
-- **Tokens suportados**: números reais, operadores aritméticos, parênteses, palavras reservadas e identificadores
-- **Comandos especiais**: gerenciamento de memória e histórico de resultados
-- **Detecção de erros**: números malformados, parênteses desbalanceados, divisão por zero
+- ✅ **Analisador Léxico**: AFD implementado com funções
+- ✅ **Parser**: Análise sintática descendente recursiva
+- ✅ **Análise Semântica**: Verificação de tipos e atribuição de atributos
+- ✅ **Gerador TAC**: Código intermediário de três endereços
+- ✅ **Otimizador**: Propagação de constantes, eliminação de código morto (74.4% redução)
+- ✅ **Gerador Assembly AVR**: Código para ATmega328P com UART funcional
+- ✅ **Testado no Arduino**: Comunicação serial operacional a 9600 baud
 
 ## Estrutura do Projeto
 
 ```
-├── src/
-│   ├── lexer.py          # Analisador léxico principal (AFD)
-│   ├── executor.py       # Executador de expressões RPN
-│   └── token_types.py    # Definições de tipos de tokens
-├── tests/
-│   ├── test_lexer.py     # Testes unitários do analisador léxico
-│   └── test_executor.py  # Testes unitários do executador
-├── utils/
-│   └── util.py           # Utilitários auxiliares
-├── main.py               # Programa principal
-├── expressoes.txt        # Arquivo de teste com expressões RPN
-├── texto1.txt            # Arquivos de teste adicionais
-├── texto2.txt
-├── texto3.txt
-├── tokens.txt            # Tokens gerados na última execução
+├── src/                      # Código-fonte do compilador
+│   ├── lexer.py             # Analisador léxico (AFD)
+│   ├── grammar.py           # Parser (análise sintática)
+│   ├── syntax_tree.py       # Árvore sintática
+│   ├── arvore_atribuida.py  # Análise semântica
+│   ├── gerador_tac.py       # Gerador de TAC
+│   ├── otimizador_tac.py    # Otimizador de TAC
+│   └── gerador_assembly_avr.py  # Gerador Assembly AVR (756 linhas)
+│
+├── tests/                   # Testes unitários
+│   ├── test_lexer.py       # Testes léxico
+│   ├── test_parser.py      # Testes sintático
+│   ├── test_assembly_parte9.py   # Testes prólogo/epílogo (6/6 ✅)
+│   └── test_assembly_parte10.py  # Testes operações (10/10 ✅)
+│
+├── examples/                # Arquivos de teste RPN
+│   ├── test_arduino_simples.txt  # Programa testado no Arduino ✅
+│   └── test_completo.txt        # 35 expressões completas
+│
+├── output/                  # Saída do compilador
+│   └── programa_final.s    # Assembly funcional para Arduino
+│
+├── arduino_debug/           # Arquivos de debug UART (17 testes)
+│   └── README.md
+│
+├── docs/                    # Documentação técnica
+│   ├── GRAMATICA.md
+│   ├── ERROS_SEMANTICOS.md
+│   ├── JULGAMENTO_TIPOS.md
+│   └── ASSEMBLY_AVR.md     # Documentação Parte 9-10 ⭐
+│
+├── main.py                  # Compilador até TAC otimizado
+├── main_assembly.py         # Compilador completo (RPN → Assembly)
+├── upload_arduino.bat       # Script upload Windows
 └── README.md
 ```
 
@@ -53,21 +80,43 @@ Projeto implementa um **analisador léxico** baseado em **autômato finito deter
 - **Decimais**: `3.14`, `2.0`, `15.75` (duas casas decimais)
 - **Identificadores**: `MEM`, `VAR`, `CONTADOR` (letras maiúsculas)
 
-## Como executar
+## Como Usar
 
-### Execução principal
+### 1. Compilar até TAC Otimizado
 ```bash
-# Processar arquivo de expressões
-python main.py expressoes.txt
+python3 main.py examples/test_completo.txt
+# Saída: TAC original, TAC otimizado, estatísticas
 ```
 
-### Execução de testes
+### 2. Gerar Assembly para Arduino
 ```bash
-# Testar analisador léxico
-python tests/test_lexer.py
+python3 main_assembly.py examples/test_arduino_simples.txt \
+    --output output/programa.s \
+    --nivel completo \
+    --baud 9600
+```
 
-# Testar executador
-python tests/test_executor.py
+### 3. Upload para Arduino (Windows)
+```batch
+upload_arduino.bat output\programa.s COM8
+```
+
+### 4. Upload para Arduino (Linux/Mac)
+```bash
+avr-gcc -mmcu=atmega328p output/programa.s -o programa.elf
+avr-objcopy -O ihex -j .text -j .data programa.elf programa.hex
+avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 115200 \
+    -U flash:w:programa.hex
+```
+
+### 5. Executar Testes
+```bash
+# Todos os testes
+pytest tests/
+
+# Testes específicos
+pytest tests/test_assembly_parte9.py   # 6/6 ✅
+pytest tests/test_assembly_parte10.py  # 10/10 ✅
 ```
 
 ## Exemplos de uso

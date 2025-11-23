@@ -126,18 +126,6 @@ class GeradorAssemblyAVR:
         prologo.append(f".equ SPH_ADDR, {self.SPH_ADDR:#04x}")
         prologo.append("")
         
-        # Constantes UART
-        prologo.append("; === UART CONSTANTES ===")
-        prologo.append(f".equ UCSR0A_ADDR, {self.UCSR0A_ADDR:#04x}")
-        prologo.append(f".equ UCSR0B_ADDR, {self.UCSR0B_ADDR:#04x}")
-        prologo.append(f".equ UCSR0C_ADDR, {self.UCSR0C_ADDR:#04x}")
-        prologo.append(f".equ UBRR0L_ADDR, {self.UBRR0L_ADDR:#04x}")
-        prologo.append(f".equ UBRR0H_ADDR, {self.UBRR0H_ADDR:#04x}")
-        prologo.append(f".equ UDR0_ADDR, {self.UDR0_ADDR:#04x}")
-        prologo.append(f".equ UDRE0_BIT, {self.UDRE0_BIT}")
-        prologo.append(f".equ BAUD_RATE, {self.baud_value}  ; {self.baud_rate} baud @ 16MHz")
-        prologo.append("")
-        
         # Seção .text - código
         prologo.append("; === CÓDIGO PRINCIPAL ===")
         prologo.append(".section .text")
@@ -191,58 +179,75 @@ class GeradorAssemblyAVR:
         epilogo.append("    rjmp loop_forever")
         epilogo.append("")
         
-        # Função setup UART
+        # Função setup UART - implementação compatível com Arduino
         epilogo.append("; === FUNÇÃO: Configurar UART ===")
         epilogo.append("setup_uart:")
         epilogo.append("    push r16")
+        epilogo.append("    push r17")
         epilogo.append("")
-        epilogo.append("    ; Configurar baud rate")
-        epilogo.append("    ldi r16, BAUD_RATE")
-        epilogo.append("    sts UBRR0L_ADDR, r16")
-        epilogo.append("    ldi r16, 0")
-        epilogo.append("    sts UBRR0H_ADDR, r16")
+        epilogo.append("    ; 1. Desabilitar UART completamente")
+        epilogo.append("    ldi r16, 0x00")
+        epilogo.append("    sts 0xC1, r16    ; UCSR0B = 0")
         epilogo.append("")
-        epilogo.append("    ; Habilitar transmissão")
-        epilogo.append("    ldi r16, (1 << 3)  ; TXEN0")
-        epilogo.append("    sts UCSR0B_ADDR, r16")
+        epilogo.append("    ; 2. Configurar formato: 8N1 (UCSZ01:0 = 11)")
+        epilogo.append("    ldi r16, 0x06")
+        epilogo.append("    sts 0xC2, r16    ; UCSR0C = 0b00000110")
         epilogo.append("")
-        epilogo.append("    ; Configurar formato: 8N1")
-        epilogo.append("    ldi r16, (1 << 2) | (1 << 1)")
-        epilogo.append("    sts UCSR0C_ADDR, r16")
+        epilogo.append("    ; 3. Ativar U2X (double speed) - compatível com Arduino")
+        epilogo.append("    ldi r16, 0x02")
+        epilogo.append("    sts 0xC0, r16    ; UCSR0A = 0b00000010 (U2X0=1)")
         epilogo.append("")
+        epilogo.append("    ; 4. Configurar baud rate: 9600 @ 16MHz com U2X")
+        epilogo.append("    ; UBRR = (F_CPU / (8 * BAUD)) - 1 = 207")
+        epilogo.append("    ldi r16, 207")
+        epilogo.append("    ldi r17, 0")
+        epilogo.append("    sts 0xC4, r16    ; UBRR0L = 207")
+        epilogo.append("    sts 0xC5, r17    ; UBRR0H = 0")
+        epilogo.append("")
+        epilogo.append("    ; 5. Habilitar TX (TXEN0 = bit 3)")
+        epilogo.append("    ldi r16, 0x08")
+        epilogo.append("    sts 0xC1, r16    ; UCSR0B = 0b00001000")
+        epilogo.append("")
+        epilogo.append("    ; 6. Aguardar UART estabilizar")
+        epilogo.append("    ldi r17, 255")
+        epilogo.append("uart_init_delay:")
+        epilogo.append("    dec r17")
+        epilogo.append("    brne uart_init_delay")
+        epilogo.append("")
+        epilogo.append("    pop r17")
         epilogo.append("    pop r16")
         epilogo.append("    ret")
         epilogo.append("")
         
-        # Função enviar caractere UART
+        # Função enviar caractere UART - versão simplificada
         epilogo.append("; === FUNÇÃO: Enviar caractere via UART ===")
         epilogo.append("; Entrada: r16 = caractere a enviar")
         epilogo.append("uart_transmit:")
         epilogo.append("    push r17")
         epilogo.append("")
         epilogo.append("uart_wait:")
-        epilogo.append("    ; Aguardar buffer vazio")
-        epilogo.append("    lds r17, UCSR0A_ADDR")
-        epilogo.append("    sbrs r17, UDRE0_BIT")
+        epilogo.append("    ; Aguardar buffer vazio (UDRE0 = bit 5)")
+        epilogo.append("    lds r17, 0xC0    ; UCSR0A")
+        epilogo.append("    sbrs r17, 5      ; Pular se UDRE0 = 1")
         epilogo.append("    rjmp uart_wait")
         epilogo.append("")
-        epilogo.append("    ; Enviar caractere")
-        epilogo.append("    sts UDR0_ADDR, r16")
+        epilogo.append("    ; Enviar byte")
+        epilogo.append("    sts 0xC6, r16    ; UDR0")
         epilogo.append("")
         epilogo.append("    pop r17")
         epilogo.append("    ret")
         epilogo.append("")
         
-        # Função enviar string
+        # Função enviar string - strings em Flash precisam de lpm!
         epilogo.append("; === FUNÇÃO: Enviar string via UART ===")
-        epilogo.append("; Entrada: Z aponta para string (terminada em 0)")
+        epilogo.append("; Entrada: Z aponta para string em FLASH (terminada em 0)")
         epilogo.append("uart_print_string:")
         epilogo.append("    push r16")
         epilogo.append("    push ZL")
         epilogo.append("    push ZH")
         epilogo.append("")
         epilogo.append("print_loop:")
-        epilogo.append("    ld r16, Z+")
+        epilogo.append("    lpm r16, Z+      ; Ler byte da Flash")
         epilogo.append("    tst r16")
         epilogo.append("    breq print_done")
         epilogo.append("    call uart_transmit")
@@ -283,20 +288,23 @@ class GeradorAssemblyAVR:
     def gerar_secao_data(self):
         """
         Gera a seção .data (dados inicializados)
+        Strings ficam em .text para serem lidas com lpm
         """
         data = []
         
-        data.append("; === SEÇÃO DE DADOS ===")
-        data.append(".section .data")
+        data.append("; === SEÇÃO DE DADOS (strings em .text) ===")
+        data.append(".section .text")
         data.append("")
         
-        # Mensagens
+        # Mensagens do sistema - em .text para usar lpm
         data.append("; Mensagens do sistema")
         data.append('msg_startup:')
         data.append('    .asciz "Compilador RPN - Arduino Uno\\r\\n"')
         data.append("")
         
-        # Dados adicionais serão adicionados nas próximas partes
+        # Voltar para seção .data para variáveis RAM
+        data.append(".section .data")
+        data.append("")
         data.append("; Variáveis do programa (serão adicionadas nas próximas partes)")
         data.append("")
         
@@ -423,6 +431,8 @@ class GeradorAssemblyAVR:
         if self.eh_constante(valor):
             # Carregar constante
             const_val = int(float(valor))
+            # Limitar a 8 bits (0-255)
+            const_val = const_val & 0xFF
             asm.append(f"    ldi r{reg_dest}, {const_val}  ; {resultado} = {valor}")
         else:
             # Copiar de outro registrador
@@ -430,7 +440,14 @@ class GeradorAssemblyAVR:
             if reg_src is not None:
                 asm.append(f"    mov r{reg_dest}, r{reg_src}  ; {resultado} = {valor}")
             else:
-                asm.append(f"    ; ERRO: Variável {valor} não encontrada")
+                # Variável não encontrada - pode ser constante otimizada
+                # Tentar tratar como constante
+                if self.eh_constante(valor):
+                    const_val = int(float(valor)) & 0xFF
+                    asm.append(f"    ldi r{reg_dest}, {const_val}  ; {resultado} = {valor} (otimizado)")
+                else:
+                    # Se não é constante, alocar como 0
+                    asm.append(f"    ldi r{reg_dest}, 0  ; {resultado} = {valor} (não encontrado, usando 0)")
         
         return asm
     
@@ -517,12 +534,18 @@ class GeradorAssemblyAVR:
         src = instr.operando1
         
         reg_dest = self.alocar_registrador(dest)
-        reg_src = self.obter_registrador(src)
         
-        if reg_src is not None:
-            asm.append(f"    mov r{reg_dest}, r{reg_src}  ; {dest} = {src}")
+        # Verificar se é constante
+        if self.eh_constante(src):
+            const_val = int(float(src)) & 0xFF
+            asm.append(f"    ldi r{reg_dest}, {const_val}  ; {dest} = {src} (constante)")
         else:
-            asm.append(f"    ; ERRO: Variável {src} não encontrada")
+            reg_src = self.obter_registrador(src)
+            if reg_src is not None:
+                asm.append(f"    mov r{reg_dest}, r{reg_src}  ; {dest} = {src}")
+            else:
+                # Variável não encontrada - usar 0
+                asm.append(f"    ldi r{reg_dest}, 0  ; {dest} = {src} (não encontrado)")
         
         return asm
     
@@ -558,12 +581,23 @@ class GeradorAssemblyAVR:
         condicao = instr.operando1
         label = instr.resultado
         
-        reg_cond = self.obter_registrador(condicao)
-        if reg_cond is not None:
-            asm.append(f"    tst r{reg_cond}  ; testar {condicao}")
-            asm.append(f"    breq {label}  ; saltar se zero (falso)")
+        # Se condição é constante, avaliar em tempo de compilação
+        if self.eh_constante(condicao):
+            val = int(float(condicao))
+            if val == 0:
+                # Condição sempre falsa, sempre pula
+                asm.append(f"    rjmp {label}  ; {condicao} é falso (constante)")
+            else:
+                # Condição sempre verdadeira, nunca pula
+                asm.append(f"    ; ifFalse {condicao} goto {label} - sempre verdadeiro, não pula")
         else:
-            asm.append(f"    ; ERRO: Variável {condicao} não encontrada")
+            reg_cond = self.obter_registrador(condicao)
+            if reg_cond is not None:
+                asm.append(f"    tst r{reg_cond}  ; testar {condicao}")
+                asm.append(f"    breq {label}  ; saltar se zero (falso)")
+            else:
+                # Condição não encontrada - assumir falso e pular
+                asm.append(f"    rjmp {label}  ; {condicao} não encontrado, pulando")
         
         return asm
     

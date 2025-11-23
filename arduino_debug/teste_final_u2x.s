@@ -10,16 +10,6 @@
 .equ SPL_ADDR, 0x3d
 .equ SPH_ADDR, 0x3e
 
-; === UART CONSTANTES ===
-.equ UCSR0A_ADDR, 0xc0
-.equ UCSR0B_ADDR, 0xc1
-.equ UCSR0C_ADDR, 0xc2
-.equ UBRR0L_ADDR, 0xc4
-.equ UBRR0H_ADDR, 0xc5
-.equ UDR0_ADDR, 0xc6
-.equ UDRE0_BIT, 5
-.equ BAUD_RATE, 103  ; 9600 baud @ 16MHz
-
 ; === CÓDIGO PRINCIPAL ===
 .section .text
 .global main
@@ -50,21 +40,38 @@ loop_forever:
 ; === FUNÇÃO: Configurar UART ===
 setup_uart:
     push r16
+    push r17
 
-    ; Configurar baud rate
-    ldi r16, BAUD_RATE
-    sts UBRR0L_ADDR, r16
-    ldi r16, 0
-    sts UBRR0H_ADDR, r16
+    ; 1. Desabilitar UART completamente
+    ldi r16, 0x00
+    sts 0xC1, r16    ; UCSR0B = 0
 
-    ; Habilitar transmissão
-    ldi r16, (1 << 3)  ; TXEN0
-    sts UCSR0B_ADDR, r16
+    ; 2. Configurar formato: 8N1 (UCSZ01:0 = 11)
+    ldi r16, 0x06
+    sts 0xC2, r16    ; UCSR0C = 0b00000110
 
-    ; Configurar formato: 8N1
-    ldi r16, (1 << 2) | (1 << 1)
-    sts UCSR0C_ADDR, r16
+    ; 3. Ativar U2X (double speed) - compatível com Arduino
+    ldi r16, 0x02
+    sts 0xC0, r16    ; UCSR0A = 0b00000010 (U2X0=1)
 
+    ; 4. Configurar baud rate: 9600 @ 16MHz com U2X
+    ; UBRR = (F_CPU / (8 * BAUD)) - 1 = 207
+    ldi r16, 207
+    ldi r17, 0
+    sts 0xC4, r16    ; UBRR0L = 207
+    sts 0xC5, r17    ; UBRR0H = 0
+
+    ; 5. Habilitar TX (TXEN0 = bit 3)
+    ldi r16, 0x08
+    sts 0xC1, r16    ; UCSR0B = 0b00001000
+
+    ; 6. Aguardar UART estabilizar
+    ldi r17, 255
+uart_init_delay:
+    dec r17
+    brne uart_init_delay
+
+    pop r17
     pop r16
     ret
 
@@ -74,13 +81,23 @@ uart_transmit:
     push r17
 
 uart_wait:
-    ; Aguardar buffer vazio
-    lds r17, UCSR0A_ADDR
-    sbrs r17, UDRE0_BIT
-    rjmp uart_wait
+    ; Aguardar buffer vazio (UDRE0 = bit 5 de UCSR0A)
+    lds r17, 0xC0    ; Ler UCSR0A
+    sbrs r17, 5      ; Pular se UDRE0 = 1 (pronto)
+    rjmp uart_wait   ; Caso contrário, continuar esperando
 
-    ; Enviar caractere
-    sts UDR0_ADDR, r16
+    ; Enviar byte
+    sts 0xC6, r16    ; UDR0 = caractere
+
+    ; Aguardar transmissão completar (TXC0 = bit 6)
+uart_tx_complete:
+    lds r17, 0xC0    ; Ler UCSR0A
+    sbrs r17, 6      ; Pular se TXC0 = 1 (completo)
+    rjmp uart_tx_complete
+
+    ; Limpar flag TXC0 escrevendo 1
+    ldi r17, 0x40    ; Bit 6
+    sts 0xC0, r17    ; Limpar TXC0
 
     pop r17
     ret
@@ -124,40 +141,9 @@ programa_principal:
     push r17
     push r18
 
-    ; ERRO: Variável 100 não encontrada
-    ; ERRO: Variável 50 não encontrada
-    ; ERRO: Variável 42 não encontrada
-    ; ERRO: Variável 1 não encontrada
-    ; ERRO: Variável 100 não encontrada
-    rjmp L1
-L0:
-    ; ERRO: Variável 0 não encontrada
-L1:
-    ; ERRO: Variável 1 não encontrada
-    ; ERRO: Variável 150 não encontrada
-    rjmp L3
-L2:
-    ; ERRO: Variável 50 não encontrada
-L3:
-    ; ERRO: Variável 0 não encontrada
-L4:
-    ; ERRO: Variável 1 não encontrada
-    ; ERRO: Variável 1 não encontrada
-    rjmp L4
-L5:
-    ; ERRO: Variável 5 não encontrada
-    ; ERRO: Variável 1 não encontrada
-L6:
-    ; ERRO: Variável 1 não encontrada
-    ; ERRO: Variável 5 não encontrada
-    rjmp L6
-L7:
-    ; ERRO: Variável 1 não encontrada
-    ; ERRO: Variável 999 não encontrada
-    rjmp L9
-L8:
-    ; ERRO: Variável 111 não encontrada
-L9:
+    ldi r16, 10  ; X = 10 (constante)
+    ldi r17, 20  ; Y = 20 (constante)
+    ldi r18, 30  ; RESULTADO = 30 (constante)
 
     pop r18
     pop r17
