@@ -69,6 +69,11 @@ class GeradorAssemblyAVR:
     BAUD_115200 = 8           # UBRR para 115200 baud @ 16MHz
     FORMAT_8N1 = 0x06         # 8 bits, sem paridade, 1 stop bit
     
+    # Endereços SRAM (Parte 11)
+    SRAM_START = 0x0100       # Início da SRAM
+    TEMP_VARS_ADDR = 0x0100   # Base para temporários (t0-t31)
+    NAMED_VARS_ADDR = 0x0120  # Base para variáveis (A-Z)
+    
     def __init__(self, baud_rate: int = 9600):
         """
         Inicializa o gerador de Assembly
@@ -373,6 +378,66 @@ class GeradorAssemblyAVR:
         """Obtém o registrador de uma variável (sem alocar novo)"""
         return self.mapa_variaveis.get(variavel, None)
     
+    # ========================================================================
+    # PARTE 11: ACESSO À MEMÓRIA SRAM
+    # ========================================================================
+    
+    def calcular_endereco_variavel(self, nome: str) -> int:
+        """
+        Calcula o endereço SRAM de uma variável
+        
+        Args:
+            nome: Nome da variável (t0-t31 ou A-Z)
+            
+        Returns:
+            Endereço na SRAM
+        """
+        if nome.startswith('t'):
+            # Temporário: t0 → 0x0100, t1 → 0x0101, etc.
+            num = int(nome[1:])
+            return self.TEMP_VARS_ADDR + num
+        else:
+            # Variável nomeada: A → 0x0120, B → 0x0121, etc.
+            return self.NAMED_VARS_ADDR + (ord(nome[0]) - ord('A'))
+    
+    def gerar_load_variavel(self, dest_reg: int, variavel: str) -> List[str]:
+        """
+        Gera código para carregar variável da SRAM
+        
+        Args:
+            dest_reg: Registrador de destino
+            variavel: Nome da variável
+            
+        Returns:
+            Linhas de Assembly
+        """
+        codigo = []
+        endereco = self.calcular_endereco_variavel(variavel)
+        
+        codigo.append(f"    ; Carregar {variavel} da SRAM (0x{endereco:04X})")
+        codigo.append(f"    lds r{dest_reg}, 0x{endereco:04X}")
+        
+        return codigo
+    
+    def gerar_store_variavel(self, src_reg: int, variavel: str) -> List[str]:
+        """
+        Gera código para salvar variável na SRAM
+        
+        Args:
+            src_reg: Registrador de origem
+            variavel: Nome da variável
+            
+        Returns:
+            Linhas de Assembly
+        """
+        codigo = []
+        endereco = self.calcular_endereco_variavel(variavel)
+        
+        codigo.append(f"    ; Salvar {variavel} na SRAM (0x{endereco:04X})")
+        codigo.append(f"    sts 0x{endereco:04X}, r{src_reg}")
+        
+        return codigo
+    
     def eh_constante(self, valor: str) -> bool:
         """Verifica se um valor é uma constante numérica"""
         try:
@@ -380,6 +445,20 @@ class GeradorAssemblyAVR:
             return True
         except (ValueError, TypeError):
             return False
+    
+    def eh_variavel_nomeada(self, nome: str) -> bool:
+        """
+        Verifica se é uma variável nomeada (A-Z)
+        Variáveis nomeadas são armazenadas em SRAM
+        """
+        return len(nome) == 1 and nome.isupper() and nome.isalpha()
+    
+    def eh_temporario(self, nome: str) -> bool:
+        """
+        Verifica se é um temporário (t0-t31)
+        Temporários podem usar registradores
+        """
+        return nome.startswith('t') and nome[1:].isdigit()
     
     # ========================================================================
     # PARTE 10: MAPEAMENTO TAC → ASSEMBLY
@@ -418,36 +497,58 @@ class GeradorAssemblyAVR:
         """
         Gera Assembly para atribuição: resultado = valor
         
-        Exemplo TAC: t0 = 5
-        Assembly: ldi r16, 5
+        Parte 11: Se resultado é variável nomeada (A-Z), salva na SRAM
+                  Se valor é variável nomeada, carrega da SRAM
+        
+        Exemplo TAC: X = 5
+        Assembly: 
+            ldi r16, 5
+            sts 0x0120, r16  ; Salvar X na SRAM
         """
         asm = []
         resultado = instr.resultado
         valor = instr.operando1
         
-        # Alocar registrador para resultado
-        reg_dest = self.alocar_registrador(resultado)
-        
         if self.eh_constante(valor):
-            # Carregar constante
-            const_val = int(float(valor))
-            # Limitar a 8 bits (0-255)
-            const_val = const_val & 0xFF
-            asm.append(f"    ldi r{reg_dest}, {const_val}  ; {resultado} = {valor}")
-        else:
-            # Copiar de outro registrador
-            reg_src = self.obter_registrador(valor)
-            if reg_src is not None:
-                asm.append(f"    mov r{reg_dest}, r{reg_src}  ; {resultado} = {valor}")
+            # Valor é constante
+            const_val = int(float(valor)) & 0xFF
+            
+            if self.eh_variavel_nomeada(resultado):
+                # Resultado é variável nomeada → Salvar na SRAM
+                reg_temp = self.alocar_registrador('_temp_const')
+                asm.append(f"    ldi r{reg_temp}, {const_val}  ; {resultado} = {valor}")
+                asm.extend(self.gerar_store_variavel(reg_temp, resultado))
+                self.liberar_registrador('_temp_const')
             else:
-                # Variável não encontrada - pode ser constante otimizada
-                # Tentar tratar como constante
-                if self.eh_constante(valor):
-                    const_val = int(float(valor)) & 0xFF
-                    asm.append(f"    ldi r{reg_dest}, {const_val}  ; {resultado} = {valor} (otimizado)")
+                # Resultado é temporário → Usar registrador
+                reg_dest = self.alocar_registrador(resultado)
+                asm.append(f"    ldi r{reg_dest}, {const_val}  ; {resultado} = {valor}")
+        else:
+            # Valor é variável/temporário
+            reg_src = self.obter_registrador(valor)
+            
+            if reg_src is None:
+                # Valor pode estar na SRAM
+                if self.eh_variavel_nomeada(valor):
+                    reg_temp = self.alocar_registrador('_temp_load_attr')
+                    asm.extend(self.gerar_load_variavel(reg_temp, valor))
+                    reg_src = reg_temp
                 else:
-                    # Se não é constante, alocar como 0
-                    asm.append(f"    ldi r{reg_dest}, 0  ; {resultado} = {valor} (não encontrado, usando 0)")
+                    # Valor não encontrado
+                    asm.append(f"    ; AVISO: {valor} não encontrado")
+                    return asm
+            
+            if self.eh_variavel_nomeada(resultado):
+                # Resultado é variável nomeada → Salvar na SRAM
+                asm.extend(self.gerar_store_variavel(reg_src, resultado))
+                
+                # Liberar temp se foi alocado
+                if self.eh_variavel_nomeada(valor):
+                    self.liberar_registrador('_temp_load_attr')
+            else:
+                # Resultado é temporário → Copiar para registrador
+                reg_dest = self.alocar_registrador(resultado)
+                asm.append(f"    mov r{reg_dest}, r{reg_src}  ; {resultado} = {valor}")
         
         return asm
     
@@ -455,10 +556,14 @@ class GeradorAssemblyAVR:
         """
         Gera Assembly para operação binária
         
-        Exemplo TAC: t2 = t0 + t1
+        Parte 11: Carrega operandos da SRAM se forem variáveis nomeadas (A-Z)
+        
+        Exemplo TAC: Z = X + Y
         Assembly:
-            mov r18, r16  ; copiar t0
-            add r18, r17  ; adicionar t1
+            lds r16, 0x0120  ; Carregar X
+            lds r17, 0x0121  ; Carregar Y
+            add r16, r17
+            sts 0x0122, r16  ; Salvar Z
         """
         asm = []
         resultado = instr.resultado
@@ -466,34 +571,52 @@ class GeradorAssemblyAVR:
         op2 = instr.operando2
         operador = instr.operador
         
-        # Alocar registrador para resultado
-        reg_dest = self.alocar_registrador(resultado)
-        
-        # Obter operandos
+        # Obter registrador/valor do primeiro operando
         if self.eh_constante(op1):
-            # Carregar primeira constante
+            # Primeira constante
             val1 = int(float(op1))
-            asm.append(f"    ldi r{reg_dest}, {val1}")
+            reg_temp1 = self.alocar_registrador('_temp_op1')
+            asm.append(f"    ldi r{reg_temp1}, {val1}")
+            reg_op1 = reg_temp1
         else:
             reg_op1 = self.obter_registrador(op1)
-            if reg_op1 is not None:
-                asm.append(f"    mov r{reg_dest}, r{reg_op1}")
-            else:
-                asm.append(f"    ; ERRO: Variável {op1} não encontrada")
-                return asm
+            if reg_op1 is None:
+                # Pode estar na SRAM
+                if self.eh_variavel_nomeada(op1):
+                    reg_temp1 = self.alocar_registrador('_temp_op1')
+                    asm.extend(self.gerar_load_variavel(reg_temp1, op1))
+                    reg_op1 = reg_temp1
+                else:
+                    asm.append(f"    ; ERRO: Variável {op1} não encontrada")
+                    return asm
         
-        # Aplicar operação com segundo operando
+        # Obter registrador/valor do segundo operando
         if self.eh_constante(op2):
             val2 = int(float(op2))
-            # Para operações com constante, precisamos de um registrador temporário
-            reg_temp = 31  # Usar r31 como temporário
-            asm.append(f"    ldi r{reg_temp}, {val2}")
-            reg_op2 = reg_temp
+            reg_temp2 = self.alocar_registrador('_temp_op2')
+            asm.append(f"    ldi r{reg_temp2}, {val2}")
+            reg_op2 = reg_temp2
         else:
             reg_op2 = self.obter_registrador(op2)
             if reg_op2 is None:
-                asm.append(f"    ; ERRO: Variável {op2} não encontrada")
-                return asm
+                # Pode estar na SRAM
+                if self.eh_variavel_nomeada(op2):
+                    reg_temp2 = self.alocar_registrador('_temp_op2')
+                    asm.extend(self.gerar_load_variavel(reg_temp2, op2))
+                    reg_op2 = reg_temp2
+                else:
+                    asm.append(f"    ; ERRO: Variável {op2} não encontrada")
+                    return asm
+        
+        # Copiar primeiro operando para registrador de trabalho
+        if self.eh_variavel_nomeada(resultado):
+            # Resultado irá para SRAM, usar registrador temporário
+            reg_dest = self.alocar_registrador('_temp_result')
+        else:
+            # Resultado fica em registrador
+            reg_dest = self.alocar_registrador(resultado)
+        
+        asm.append(f"    mov r{reg_dest}, r{reg_op1}  ; copiar operando1")
         
         # Gerar instrução de operação
         if operador == '+':
@@ -520,32 +643,73 @@ class GeradorAssemblyAVR:
         else:
             asm.append(f"    ; ERRO: Operador {operador} não suportado")
         
+        # Se resultado é variável nomeada, salvar na SRAM
+        if self.eh_variavel_nomeada(resultado):
+            asm.extend(self.gerar_store_variavel(reg_dest, resultado))
+            self.liberar_registrador('_temp_result')
+        
+        # Liberar registradores temporários de operandos
+        if self.eh_constante(op1) or self.eh_variavel_nomeada(op1):
+            self.liberar_registrador('_temp_op1')
+        if self.eh_constante(op2) or self.eh_variavel_nomeada(op2):
+            self.liberar_registrador('_temp_op2')
+        
         return asm
     
     def gerar_copia(self, instr: InstrucaoTAC) -> List[str]:
         """
         Gera Assembly para cópia: dest = src
         
+        Parte 11: Se dest é variável nomeada (A-Z), salva na SRAM
+        
         Exemplo TAC: X = t0
-        Assembly: mov r20, r16
+        Assembly: sts 0x0120, r16  ; Salvar X na SRAM
         """
         asm = []
         dest = instr.resultado
         src = instr.operando1
         
-        reg_dest = self.alocar_registrador(dest)
-        
-        # Verificar se é constante
+        # Obter valor de origem
         if self.eh_constante(src):
+            # Fonte é constante
             const_val = int(float(src)) & 0xFF
-            asm.append(f"    ldi r{reg_dest}, {const_val}  ; {dest} = {src} (constante)")
-        else:
-            reg_src = self.obter_registrador(src)
-            if reg_src is not None:
-                asm.append(f"    mov r{reg_dest}, r{reg_src}  ; {dest} = {src}")
+            
+            if self.eh_variavel_nomeada(dest):
+                # Destino é variável nomeada → Salvar na SRAM
+                reg_temp = self.alocar_registrador('_temp_store')
+                asm.append(f"    ldi r{reg_temp}, {const_val}  ; {dest} = {src} (constante)")
+                asm.extend(self.gerar_store_variavel(reg_temp, dest))
+                self.liberar_registrador('_temp_store')
             else:
-                # Variável não encontrada - usar 0
-                asm.append(f"    ldi r{reg_dest}, 0  ; {dest} = {src} (não encontrado)")
+                # Destino é temporário → Usar registrador
+                reg_dest = self.alocar_registrador(dest)
+                asm.append(f"    ldi r{reg_dest}, {const_val}  ; {dest} = {src}")
+        else:
+            # Fonte é variável/temporário
+            reg_src = self.obter_registrador(src)
+            
+            if reg_src is None:
+                # Fonte pode estar na SRAM
+                if self.eh_variavel_nomeada(src):
+                    reg_temp = self.alocar_registrador('_temp_load')
+                    asm.extend(self.gerar_load_variavel(reg_temp, src))
+                    reg_src = reg_temp
+                else:
+                    # Fonte não encontrada
+                    asm.append(f"    ; AVISO: {src} não encontrado")
+                    return asm
+            
+            if self.eh_variavel_nomeada(dest):
+                # Destino é variável nomeada → Salvar na SRAM
+                asm.extend(self.gerar_store_variavel(reg_src, dest))
+                
+                # Liberar temp se foi alocado
+                if src != '_temp_load' and self.eh_variavel_nomeada(src):
+                    self.liberar_registrador('_temp_load')
+            else:
+                # Destino é temporário → Copiar para registrador
+                reg_dest = self.alocar_registrador(dest)
+                asm.append(f"    mov r{reg_dest}, r{reg_src}  ; {dest} = {src}")
         
         return asm
     

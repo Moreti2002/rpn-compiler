@@ -1,0 +1,13 @@
+# Teste Parte 11: Acesso à SRAM com uso completo de lds/sts
+# Forçar carregamento de variáveis da SRAM
+
+# Inicializar variáveis
+(10 A)
+(20 B)
+
+# Somar A + B e armazenar em C
+# Nota: A gramática não suporta diretamente ((A B +) C)
+# Precisamos usar a expressão e depois armazenar com RES
+
+# Testar multiplicação A * B
+(A B *)

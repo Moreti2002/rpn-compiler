@@ -1,0 +1,16 @@
+# Teste Parte 11: SRAM - Forçar carregamento de variáveis
+
+# Salvar 15 em A
+(15 A)
+
+# Salvar 25 em B
+(25 B)
+
+# C = A + B (deve carregar A e B da SRAM)
+((A B +) C)
+
+# D = C + 10 (deve carregar C da SRAM)
+((C 10 +) D)
+
+# E = A + D (deve carregar A e D da SRAM)
+((A D +) E)

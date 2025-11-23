@@ -1,0 +1,23 @@
+# Teste Parte 11: Acesso à SRAM
+# Este teste valida que variáveis nomeadas (A-Z) são salvas e carregadas da SRAM
+
+# Caso 1: Armazenar 10 em X → deve gerar sts para X (0x0137)
+(10 X)
+
+# Caso 2: Armazenar 20 em Y → deve gerar sts para Y (0x0138)
+(20 Y)
+
+# Caso 3: Carregar X e Y, somar → deve gerar lds para X e Y
+(X Y +)
+
+# Caso 4: Armazenar 30 em Z → deve gerar sts para Z (0x0139)
+(30 Z)
+
+# Caso 5: Carregar Z, somar com 5 → deve gerar lds para Z
+(Z 5 +)
+
+# Caso 6: Operação complexa - X * Y → deve gerar lds para ambos
+(X Y *)
+
+# Operação Z + 5 (deve carregar Z da SRAM)
+(Z 5 +)
