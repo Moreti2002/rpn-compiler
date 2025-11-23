@@ -1,0 +1,15 @@
+# Teste de Operações com Armazenamento e Debug Print
+# Todas as operações salvam resultados em variáveis para evitar otimização
+
+# Inicializar variáveis base
+(10 X)
+(20 Y)
+
+# Soma: Z = X + Y (esperado: 30)
+((X Y +) Z)
+
+# Subtração: W = Y - X (esperado: 10)  
+((Y X -) W)
+
+# Multiplicação: R = X * 3 (esperado: 30)
+((X 3 *) R)

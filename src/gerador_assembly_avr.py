@@ -74,15 +74,17 @@ class GeradorAssemblyAVR:
     TEMP_VARS_ADDR = 0x0100   # Base para temporários (t0-t31)
     NAMED_VARS_ADDR = 0x0120  # Base para variáveis (A-Z)
     
-    def __init__(self, baud_rate: int = 9600):
+    def __init__(self, baud_rate: int = 9600, debug_print: bool = False):
         """
         Inicializa o gerador de Assembly
         
         Args:
             baud_rate: Taxa de transmissão UART (9600 ou 115200)
+            debug_print: Se True, adiciona prints após cada operação
         """
         self.baud_rate = baud_rate
         self.baud_value = self.BAUD_9600 if baud_rate == 9600 else self.BAUD_115200
+        self.debug_print = debug_print
         
         # Código assembly gerado
         self.codigo: List[str] = []
@@ -280,6 +282,105 @@ class GeradorAssemblyAVR:
         epilogo.append("    ret")
         epilogo.append("")
         
+        # ========================================================================
+        # PARTE 13: FUNÇÕES DE DEBUG - Print de números decimais
+        # ========================================================================
+        
+        # Função para imprimir número de 8 bits em decimal (0-255)
+        epilogo.append("; === FUNÇÃO: Imprimir número decimal (0-255) ===")
+        epilogo.append("; Entrada: r16 = número a imprimir")
+        epilogo.append("print_number:")
+        epilogo.append("    push r16")
+        epilogo.append("    push r17")
+        epilogo.append("    push r18")
+        epilogo.append("    push r19")
+        epilogo.append("    push r20")
+        epilogo.append("")
+        epilogo.append("    ; Converter para decimal e imprimir")
+        epilogo.append("    mov r17, r16     ; Copiar número")
+        epilogo.append("")
+        epilogo.append("    ; Extrair centenas (dividir por 100)")
+        epilogo.append("    ldi r18, 100")
+        epilogo.append("    clr r19          ; Contador de centenas")
+        epilogo.append("div_100:")
+        epilogo.append("    cp r17, r18")
+        epilogo.append("    brlo print_centenas")
+        epilogo.append("    sub r17, r18")
+        epilogo.append("    inc r19")
+        epilogo.append("    rjmp div_100")
+        epilogo.append("")
+        epilogo.append("print_centenas:")
+        epilogo.append("    ; Imprimir centenas se > 0")
+        epilogo.append("    tst r19")
+        epilogo.append("    breq skip_centenas")
+        epilogo.append("    mov r16, r19")
+        epilogo.append("    subi r16, -48    ; Converter para ASCII")
+        epilogo.append("    call uart_transmit")
+        epilogo.append("    ldi r20, 1       ; Flag: imprimiu dígito")
+        epilogo.append("    rjmp extract_dezenas")
+        epilogo.append("")
+        epilogo.append("skip_centenas:")
+        epilogo.append("    clr r20          ; Flag: não imprimiu ainda")
+        epilogo.append("")
+        epilogo.append("extract_dezenas:")
+        epilogo.append("    ; Extrair dezenas (dividir por 10)")
+        epilogo.append("    ldi r18, 10")
+        epilogo.append("    clr r19          ; Contador de dezenas")
+        epilogo.append("div_10:")
+        epilogo.append("    cp r17, r18")
+        epilogo.append("    brlo print_dezenas")
+        epilogo.append("    sub r17, r18")
+        epilogo.append("    inc r19")
+        epilogo.append("    rjmp div_10")
+        epilogo.append("")
+        epilogo.append("print_dezenas:")
+        epilogo.append("    ; Imprimir dezenas se > 0 ou se já imprimiu centenas")
+        epilogo.append("    tst r19")
+        epilogo.append("    brne print_dezenas_digit")
+        epilogo.append("    tst r20          ; Já imprimiu centenas?")
+        epilogo.append("    breq print_unidades")
+        epilogo.append("")
+        epilogo.append("print_dezenas_digit:")
+        epilogo.append("    mov r16, r19")
+        epilogo.append("    subi r16, -48    ; Converter para ASCII")
+        epilogo.append("    call uart_transmit")
+        epilogo.append("")
+        epilogo.append("print_unidades:")
+        epilogo.append("    ; Sempre imprimir unidades")
+        epilogo.append("    mov r16, r17")
+        epilogo.append("    subi r16, -48    ; Converter para ASCII")
+        epilogo.append("    call uart_transmit")
+        epilogo.append("")
+        epilogo.append("    pop r20")
+        epilogo.append("    pop r19")
+        epilogo.append("    pop r18")
+        epilogo.append("    pop r17")
+        epilogo.append("    pop r16")
+        epilogo.append("    ret")
+        epilogo.append("")
+        
+        # Função para imprimir nova linha
+        epilogo.append("; === FUNÇÃO: Imprimir nova linha ===")
+        epilogo.append("print_newline:")
+        epilogo.append("    push r16")
+        epilogo.append("    ldi r16, 13      ; CR")
+        epilogo.append("    call uart_transmit")
+        epilogo.append("    ldi r16, 10      ; LF")
+        epilogo.append("    call uart_transmit")
+        epilogo.append("    pop r16")
+        epilogo.append("    ret")
+        epilogo.append("")
+        
+        # Função para imprimir espaço
+        epilogo.append("; === FUNÇÃO: Imprimir espaço ===")
+        epilogo.append("print_space:")
+        epilogo.append("    push r16")
+        epilogo.append("    ldi r16, 32      ; Espaço")
+        epilogo.append("    call uart_transmit")
+        epilogo.append("    pop r16")
+        epilogo.append("    ret")
+        epilogo.append("")
+        
         # Placeholder para programa principal
         epilogo.append("; === FUNÇÃO: Programa Principal (gerado a partir do TAC) ===")
         epilogo.append("programa_principal:")
@@ -459,6 +560,28 @@ class GeradorAssemblyAVR:
         Temporários podem usar registradores
         """
         return nome.startswith('t') and nome[1:].isdigit()
+    
+    def gerar_debug_print(self, reg: int, label: str = "") -> List[str]:
+        """
+        Gera código para imprimir valor de registrador (debug)
+        
+        Args:
+            reg: Registrador a imprimir
+            label: Label opcional para identificação
+            
+        Returns:
+            Linhas de Assembly
+        """
+        if not self.debug_print:
+            return []
+        
+        codigo = []
+        codigo.append(f"    ; DEBUG: Imprimir {label if label else f'r{reg}'}")
+        codigo.append(f"    mov r16, r{reg}")
+        codigo.append(f"    call print_number")
+        codigo.append(f"    call print_space")
+        
+        return codigo
     
     # ========================================================================
     # PARTE 10: MAPEAMENTO TAC → ASSEMBLY
@@ -642,6 +765,9 @@ class GeradorAssemblyAVR:
             # Resultado em flags, não em registrador
         else:
             asm.append(f"    ; ERRO: Operador {operador} não suportado")
+        
+        # Debug print do resultado
+        asm.extend(self.gerar_debug_print(reg_dest, f"{resultado} = {op1} {operador} {op2}"))
         
         # Se resultado é variável nomeada, salvar na SRAM
         if self.eh_variavel_nomeada(resultado):

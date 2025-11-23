@@ -35,7 +35,7 @@ from src.gerador_assembly_avr import GeradorAssemblyAVR
 
 
 def compilar_para_assembly(expressoes: List[str], nivel_otimizacao: str = 'completo',
-                          baud_rate: int = 9600) -> tuple:
+                          baud_rate: int = 9600, debug_print: bool = False) -> tuple:
     """
     Compila expressões RPN para Assembly AVR
     
@@ -43,6 +43,7 @@ def compilar_para_assembly(expressoes: List[str], nivel_otimizacao: str = 'compl
         expressoes: Lista de expressões RPN
         nivel_otimizacao: Nível de otimização TAC
         baud_rate: Taxa UART
+        debug_print: Se True, adiciona prints de debug após operações
         
     Returns:
         (codigo_assembly, estatisticas)
@@ -112,8 +113,8 @@ def compilar_para_assembly(expressoes: List[str], nivel_otimizacao: str = 'compl
     print()
     
     # Fase 6: Geração Assembly
-    print("⚙️  Gerando Assembly AVR...")
-    gerador_asm = GeradorAssemblyAVR(baud_rate=baud_rate)
+    print("⚩️  Gerando Assembly AVR...")
+    gerador_asm = GeradorAssemblyAVR(baud_rate=baud_rate, debug_print=debug_print)
     codigo_assembly = gerador_asm.gerar(tac_otimizado)
     
     stats_asm = gerador_asm.obter_estatisticas()
@@ -147,6 +148,7 @@ def main():
         print("  --nivel <nivel>     Nível de otimização (folding|propagation|dead_code|completo)")
         print("  --output <arquivo>  Arquivo de saída Assembly (.s)")
         print("  --baud <rate>       Taxa UART (9600 ou 115200)")
+        print("  --debug             Adicionar prints de debug após operações")
         print()
         print("Exemplo:")
         print("  python3 main_assembly.py test_completo.txt --output programa.s")
@@ -158,6 +160,7 @@ def main():
     nivel = 'completo'
     output = 'output/programa.s'
     baud = 9600
+    debug = False
     
     if '--nivel' in sys.argv:
         idx = sys.argv.index('--nivel')
@@ -173,6 +176,9 @@ def main():
         idx = sys.argv.index('--baud')
         if idx + 1 < len(sys.argv):
             baud = int(sys.argv[idx + 1])
+    
+    if '--debug' in sys.argv:
+        debug = True
     
     # Ler arquivo
     caminho = Path(arquivo_entrada)
@@ -190,7 +196,7 @@ def main():
     ]
     
     # Compilar
-    assembly, stats = compilar_para_assembly(expressoes, nivel, baud)
+    assembly, stats = compilar_para_assembly(expressoes, nivel, baud, debug)
     
     # Salvar
     output_path = Path(output)

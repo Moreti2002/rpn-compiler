@@ -1,0 +1,11 @@
+# Teste Simples de Soma para Debug Print
+# Objetivo: Visualizar função print_number em ação
+
+# Armazenar 15 em A
+(15 A)
+
+# Armazenar 25 em B  
+(25 B)
+
+# Somar A + B (resultado será printado se --debug estiver ativo)
+(A B +)
