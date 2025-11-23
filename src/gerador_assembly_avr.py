@@ -760,9 +760,61 @@ class GeradorAssemblyAVR:
             # Potência requer implementação de função auxiliar
             asm.append(f"    ; TODO: Potência {op1} ^ {op2}")
         elif operador in ['>', '<', '>=', '<=', '==', '!=']:
-            # Comparação
+            # Comparação - resultado booleano (0 ou 1)
+            # Usar labels únicos para evitar conflitos
+            label_true = f"cmp_true_{self.num_labels}"
+            label_end = f"cmp_end_{self.num_labels}"
+            self.num_labels += 1
+            
             asm.append(f"    cp r{reg_dest}, r{reg_op2}  ; comparar {op1} {operador} {op2}")
-            # Resultado em flags, não em registrador
+            
+            # Gerar código baseado no operador
+            if operador == '==':
+                asm.append(f"    breq {label_true}  ; se igual, resultado = 1")
+                asm.append(f"    ldi r{reg_dest}, 0  ; senão, resultado = 0")
+                asm.append(f"    rjmp {label_end}")
+                asm.append(f"{label_true}:")
+                asm.append(f"    ldi r{reg_dest}, 1")
+                asm.append(f"{label_end}:")
+            elif operador == '!=':
+                asm.append(f"    brne {label_true}  ; se diferente, resultado = 1")
+                asm.append(f"    ldi r{reg_dest}, 0  ; senão, resultado = 0")
+                asm.append(f"    rjmp {label_end}")
+                asm.append(f"{label_true}:")
+                asm.append(f"    ldi r{reg_dest}, 1")
+                asm.append(f"{label_end}:")
+            elif operador == '<':
+                asm.append(f"    brlo {label_true}  ; se menor (unsigned), resultado = 1")
+                asm.append(f"    ldi r{reg_dest}, 0  ; senão, resultado = 0")
+                asm.append(f"    rjmp {label_end}")
+                asm.append(f"{label_true}:")
+                asm.append(f"    ldi r{reg_dest}, 1")
+                asm.append(f"{label_end}:")
+            elif operador == '>=':
+                asm.append(f"    brsh {label_true}  ; se >= (unsigned), resultado = 1")
+                asm.append(f"    ldi r{reg_dest}, 0  ; senão, resultado = 0")
+                asm.append(f"    rjmp {label_end}")
+                asm.append(f"{label_true}:")
+                asm.append(f"    ldi r{reg_dest}, 1")
+                asm.append(f"{label_end}:")
+            elif operador == '>':
+                # op1 > op2 = NOT(op1 <= op2) = NOT(op1 < op2 OR op1 == op2)
+                asm.append(f"    brlo {label_end}  ; se op1 < op2, resultado = 0")
+                asm.append(f"    breq {label_end}  ; se op1 == op2, resultado = 0")
+                asm.append(f"    ldi r{reg_dest}, 1  ; senão op1 > op2, resultado = 1")
+                asm.append(f"    rjmp {label_true}")
+                asm.append(f"{label_end}:")
+                asm.append(f"    ldi r{reg_dest}, 0")
+                asm.append(f"{label_true}:")
+            elif operador == '<=':
+                # op1 <= op2 = op1 < op2 OR op1 == op2
+                asm.append(f"    brlo {label_true}  ; se op1 < op2, resultado = 1")
+                asm.append(f"    breq {label_true}  ; se op1 == op2, resultado = 1")
+                asm.append(f"    ldi r{reg_dest}, 0  ; senão, resultado = 0")
+                asm.append(f"    rjmp {label_end}")
+                asm.append(f"{label_true}:")
+                asm.append(f"    ldi r{reg_dest}, 1")
+                asm.append(f"{label_end}:")
         else:
             asm.append(f"    ; ERRO: Operador {operador} não suportado")
         

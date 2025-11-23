@@ -1,0 +1,104 @@
+================================================================================
+ASSEMBLY GERADO - PARTE 12: ESTRUTURAS DE CONTROLE
+================================================================================
+
+Arquivo fonte: examples/test_parte12_basico.txt
+Expressões compiladas: 3
+- (15 10 >= (100 RESULT) (0 RESULT) IF)
+- (0 CONTADOR)
+- (CONTADOR 3 < ((CONTADOR 1 +) CONTADOR) WHILE)
+
+================================================================================
+PROGRAMA PRINCIPAL
+================================================================================
+
+programa_principal:
+    push r16
+    push r17
+    push r18
+
+    ; ===================================================================
+    ; TESTE 1: IF/ELSE - Se 15 >= 10, RESULT = 100, senão RESULT = 0
+    ; ===================================================================
+    
+    ldi r16, 15              ; t0 = 15
+    ldi r17, 10              ; t1 = 10
+    mov r18, r16             ; copiar operando1
+    cp r18, r17              ; comparar t0 >= t1
+    brsh cmp_true_0          ; se >= (unsigned), resultado = 1
+    ldi r18, 0               ; senão, resultado = 0
+    rjmp cmp_end_0
+cmp_true_0:
+    ldi r18, 1               ; resultado = 1 (verdadeiro)
+cmp_end_0:
+    ; r18 agora contém resultado da comparação (1 = true)
+    
+    tst r18                  ; testar t2
+    breq L0                  ; saltar se zero (falso) - vai para bloco ELSE
+    
+    ; Bloco TRUE (15 >= 10 é verdadeiro)
+    ldi r19, 100             ; t3 = 100
+    mov r20, r19             ; RESULT = t3 (RESULT = 100)
+    rjmp L1                  ; pular bloco FALSE
+    
+L0: ; Bloco FALSE (não executado neste caso)
+    ldi r21, 0               ; t4 = 0
+    mov r20, r21             ; RESULT = t4 (RESULT = 0)
+    
+L1: ; Fim do IF/ELSE
+    ; r20 = RESULT = 100
+
+    ; ===================================================================
+    ; TESTE 2: WHILE - Contador de 0 até 3
+    ; ===================================================================
+    
+    ldi r22, 0               ; t5 = 0
+    mov r23, r22             ; CONTADOR = t5 (CONTADOR = 0)
+    
+L2: ; Início do loop WHILE
+    ldi r24, 3               ; t6 = 3
+    mov r25, r23             ; copiar operando1
+    cp r25, r24              ; comparar CONTADOR < t6
+    brlo cmp_true_4          ; se menor (unsigned), resultado = 1
+    ldi r25, 0               ; senão, resultado = 0
+    rjmp cmp_end_4
+cmp_true_4:
+    ldi r25, 1               ; resultado = 1 (verdadeiro)
+cmp_end_4:
+    ; r25 agora contém resultado da comparação
+    
+    tst r25                  ; testar t7
+    breq L3                  ; saltar se zero (falso) - sai do loop
+    
+    ; Corpo do loop (CONTADOR < 3 é verdadeiro)
+    ldi r26, 1               ; t8 = 1
+    mov r27, r23             ; copiar operando1
+    add r27, r26             ; t9 = CONTADOR + t8
+    mov r23, r27             ; CONTADOR = t9 (incrementa)
+    rjmp L2                  ; volta para início do loop
+    
+L3: ; Fim do loop WHILE
+    ; r23 = CONTADOR = 3 (após 3 iterações: 0->1, 1->2, 2->3)
+
+    pop r18
+    pop r17
+    pop r16
+    ret
+
+================================================================================
+RESULTADO FINAL
+================================================================================
+
+Variáveis finais:
+- RESULT = 100 (em r20) - porque 15 >= 10 é verdadeiro
+- CONTADOR = 3 (em r23) - após loop executar 3 vezes (0, 1, 2)
+
+Instruções AVR utilizadas:
+- Comparação: cp (compare)
+- Branches: brsh (>=), brlo (<), breq (==), tst (test)
+- Saltos: rjmp (goto incondicional)
+- Labels: L0-L3, cmp_true_N, cmp_end_N
+
+Total: 289 linhas de assembly (incluindo prólogo, epílogo e UART)
+
+================================================================================
