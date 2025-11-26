@@ -1,0 +1,26 @@
+# Serie de Taylor para cos(x)
+# Aproximacao: cos(x) ≈ 1 - x²/2! + x⁴/4! - x⁶/6!
+# Limitado a aritmetica inteira 8-bit (0-255)
+# x = 1 radianos, usando escala simplificada
+
+# X = 10 (representa 1.0 com escala x10)
+(10 X)
+
+# Termo 1: constante 1 (escalado x10 = 10)
+(10 A)
+
+# Termo 2: -X²/2! = -(10²)/2 = -100/2 = -50
+((X X *) B)
+((B 2 /) C)
+((0 C -) D)
+
+# Termo 3: +X⁴/24 = (10⁴)/24 = 10000/24 ≈ 4 (muito pequeno)
+((B B *) E)
+((E 24 /) F)
+
+# Soma: A + D + F (termo negativo D sera subtraido)
+((A D +) G)
+((G F +) R)
+
+# R = resultado final
+# Esperado: cos(1) ≈ 0.54, escalado = 5 ou 6
