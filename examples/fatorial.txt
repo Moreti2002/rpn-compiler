@@ -1,10 +1,50 @@
-# Teste de Fatorial - Demonstração WHILE
-# Calcula 5! = 120
+# Teste de Fatorial - Calcula 1! ate 8!
+# Demonstra uso de loop WHILE com bloco composto
 
-# Inicializar
+# 1! = 1
+(1 NUM)
+(1 FAT)
+(1 CONT)
+(CONT NUM <= (((FAT CONT *) FAT) ((CONT 1 +) CONT)) WHILE)
+
+# 2! = 2
+(2 NUM)
+(1 FAT)
+(1 CONT)
+(CONT NUM <= (((FAT CONT *) FAT) ((CONT 1 +) CONT)) WHILE)
+
+# 3! = 6
+(3 NUM)
+(1 FAT)
+(1 CONT)
+(CONT NUM <= (((FAT CONT *) FAT) ((CONT 1 +) CONT)) WHILE)
+
+# 4! = 24
+(4 NUM)
+(1 FAT)
+(1 CONT)
+(CONT NUM <= (((FAT CONT *) FAT) ((CONT 1 +) CONT)) WHILE)
+
+# 5! = 120
 (5 NUM)
 (1 FAT)
 (1 CONT)
+(CONT NUM <= (((FAT CONT *) FAT) ((CONT 1 +) CONT)) WHILE)
 
-# Loop: enquanto CONT <= NUM, FAT = FAT * CONT, CONT = CONT + 1
+# 6! = 720
+(6 NUM)
+(1 FAT)
+(1 CONT)
+(CONT NUM <= (((FAT CONT *) FAT) ((CONT 1 +) CONT)) WHILE)
+
+# 7! = 5040
+(7 NUM)
+(1 FAT)
+(1 CONT)
+(CONT NUM <= (((FAT CONT *) FAT) ((CONT 1 +) CONT)) WHILE)
+
+# 8! = 40320
+(8 NUM)
+(1 FAT)
+(1 CONT)
 (CONT NUM <= (((FAT CONT *) FAT) ((CONT 1 +) CONT)) WHILE)
