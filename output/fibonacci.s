@@ -220,30 +220,29 @@ programa_principal:
     push r17
     push r18
 
-    ldi r16, 0  ; t0 = 0
+    ldi r16, 0  ; A = 0 (constante)
     ; Salvar A na SRAM (0x0120)
     sts 0x0120, r16
-    ; DEBUG: Imprimir A
-    call print_number
-    call print_newline
-    ldi r17, 1  ; t1 = 1
+    ldi r16, 1  ; B = 1 (constante)
+    ; Salvar B na SRAM (0x0121)
+    sts 0x0121, r16
+    ldi r16, 5  ; N = 5 (constante)
+    ; Salvar N na SRAM (0x012D)
+    sts 0x012D, r16
+L0:
+    ; ifFalse 1 goto L1 - sempre verdadeiro, não pula
+    ldi r16, 1  ; FIB = 1
+    ldi r17, 1  ; A = 1 (constante)
+    ; Salvar A na SRAM (0x0120)
+    sts 0x0120, r17
+    ldi r17, 1  ; B = 1 (constante)
     ; Salvar B na SRAM (0x0121)
     sts 0x0121, r17
-    ; DEBUG: Imprimir B
-    push r16
-    mov r16, r17
-    call print_number
-    call print_newline
-    pop r16
-    ldi r18, 5  ; t2 = 5
+    ldi r17, 4  ; N = 4 (constante)
     ; Salvar N na SRAM (0x012D)
-    sts 0x012D, r18
-    ; DEBUG: Imprimir N
-    push r16
-    mov r16, r18
-    call print_number
-    call print_newline
-    pop r16
+    sts 0x012D, r17
+    rjmp L0
+L1:
 
     pop r18
     pop r17

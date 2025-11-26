@@ -8,9 +8,4 @@
 (5 N)
 
 # Loop: enquanto N > 0, calcula próximo Fibonacci
-(N 0 > (
-    ((A B +) FIB)    # FIB = A + B
-    (B A)            # A = B
-    (FIB B)          # B = FIB
-    ((N 1 -) N)      # N = N - 1
-) WHILE)
+(N 0 > ( ((A B +) FIB) ((B 0 +) A) ((FIB 0 +) B) ((N 1 -) N) ) WHILE)
