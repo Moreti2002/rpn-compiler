@@ -3,6 +3,7 @@
 ## Informações do Projeto
 
 **Universidade:** PUCPR
+
 **Ano:** 2025  
 **Disciplina:** Compiladores  
 **Professor:** Frank de Alcantara
