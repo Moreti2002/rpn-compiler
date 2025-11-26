@@ -220,118 +220,60 @@ programa_principal:
     push r17
     push r18
 
-    ldi r16, 10  ; t0 = 10
+    ldi r16, 10  ; X = 10 (constante)
     ; Salvar X na SRAM (0x0137)
     sts 0x0137, r16
     ; DEBUG: Imprimir X
     call print_number
     call print_newline
-    ldi r17, 10  ; t1 = 10
+    ldi r16, 10  ; A = 10 (constante)
     ; Salvar A na SRAM (0x0120)
-    sts 0x0120, r17
+    sts 0x0120, r16
     ; DEBUG: Imprimir A
-    push r16
-    mov r16, r17
     call print_number
     call print_newline
-    pop r16
-    ; Carregar X da SRAM (0x0137)
-    lds r18, 0x0137
-    ; Carregar X da SRAM (0x0137)
-    lds r19, 0x0137
-    mov r20, r18  ; copiar operando1
-    mul r20, r19  ; t2 = X * X
-    mov r20, r0  ; resultado em r0 (8-bit)
+    ldi r16, 100  ; B = 100 (constante)
     ; Salvar B na SRAM (0x0121)
-    sts 0x0121, r20
+    sts 0x0121, r16
     ; DEBUG: Imprimir B
-    push r16
-    mov r16, r20
     call print_number
     call print_newline
-    pop r16
-    ldi r19, 2  ; t3 = 2
-    ; Carregar B da SRAM (0x0121)
-    lds r18, 0x0121
-    mov r21, r18  ; copiar operando1
-    ; TODO: Divisão B / t3
+    ldi r16, 50  ; C = 50 (constante)
     ; Salvar C na SRAM (0x0122)
-    sts 0x0122, r21
+    sts 0x0122, r16
     ; DEBUG: Imprimir C
-    push r16
-    mov r16, r21
     call print_number
     call print_newline
-    pop r16
-    ldi r18, 0  ; t5 = 0
-    ; Carregar C da SRAM (0x0122)
-    lds r22, 0x0122
-    mov r23, r18  ; copiar operando1
-    sub r23, r22  ; t6 = t5 - C
+    ldi r16, 206  ; D = -50 (constante)
     ; Salvar D na SRAM (0x0123)
-    sts 0x0123, r23
+    sts 0x0123, r16
     ; DEBUG: Imprimir D
-    push r16
-    mov r16, r23
     call print_number
     call print_newline
-    pop r16
-    ; Carregar B da SRAM (0x0121)
-    lds r22, 0x0121
-    ; Carregar B da SRAM (0x0121)
-    lds r24, 0x0121
-    mov r25, r22  ; copiar operando1
-    mul r25, r24  ; t7 = B * B
-    mov r25, r0  ; resultado em r0 (8-bit)
+    ldi r16, 16  ; E = 10000 (constante)
     ; Salvar E na SRAM (0x0124)
-    sts 0x0124, r25
+    sts 0x0124, r16
     ; DEBUG: Imprimir E
-    push r16
-    mov r16, r25
     call print_number
     call print_newline
-    pop r16
-    ldi r24, 24  ; t8 = 24
-    ; Carregar E da SRAM (0x0124)
-    lds r22, 0x0124
-    mov r26, r22  ; copiar operando1
-    ; TODO: Divisão E / t8
+    ldi r16, 160  ; F = 416.6666666666667 (constante)
     ; Salvar F na SRAM (0x0125)
-    sts 0x0125, r26
+    sts 0x0125, r16
     ; DEBUG: Imprimir F
-    push r16
-    mov r16, r26
     call print_number
     call print_newline
-    pop r16
-    ; Carregar A da SRAM (0x0120)
-    lds r22, 0x0120
-    ; Carregar D da SRAM (0x0123)
-    lds r27, 0x0123
-    mov r28, r22  ; copiar operando1
-    add r28, r27  ; t10 = A + D
+    ldi r16, 216  ; G = -40 (constante)
     ; Salvar G na SRAM (0x0126)
-    sts 0x0126, r28
+    sts 0x0126, r16
     ; DEBUG: Imprimir G
-    push r16
-    mov r16, r28
     call print_number
     call print_newline
-    pop r16
-    ; Carregar G da SRAM (0x0126)
-    lds r27, 0x0126
-    ; Carregar F da SRAM (0x0125)
-    lds r22, 0x0125
-    mov r29, r27  ; copiar operando1
-    add r29, r22  ; t11 = G + F
+    ldi r16, 120  ; R = 376.6666666666667 (constante)
     ; Salvar R na SRAM (0x0131)
-    sts 0x0131, r29
+    sts 0x0131, r16
     ; DEBUG: Imprimir R
-    push r16
-    mov r16, r29
     call print_number
     call print_newline
-    pop r16
 
     pop r18
     pop r17

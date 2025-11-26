@@ -220,78 +220,33 @@ programa_principal:
     push r17
     push r18
 
-    ldi r16, 1  ; NUM = 1
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 1  ; CONT = 1
-L0:
-    ; ifFalse 1 goto L1 - sempre verdadeiro, não pula
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 2  ; CONT = 2
-    rjmp L0
-L1:
-    ldi r16, 2  ; NUM = 2
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 1  ; CONT = 1
-L2:
-    ; ifFalse 1 goto L3 - sempre verdadeiro, não pula
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 2  ; CONT = 2
-    rjmp L2
-L3:
-    ldi r16, 3  ; NUM = 3
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 1  ; CONT = 1
-L4:
-    ; ifFalse 1 goto L5 - sempre verdadeiro, não pula
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 2  ; CONT = 2
-    rjmp L4
-L5:
-    ldi r16, 4  ; NUM = 4
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 1  ; CONT = 1
-L6:
-    ; ifFalse 1 goto L7 - sempre verdadeiro, não pula
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 2  ; CONT = 2
-    rjmp L6
-L7:
     ldi r16, 5  ; NUM = 5
     ldi r17, 1  ; FAT = 1
     ldi r18, 1  ; CONT = 1
-L8:
-    ; ifFalse 1 goto L9 - sempre verdadeiro, não pula
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 2  ; CONT = 2
-    rjmp L8
-L9:
-    ldi r16, 6  ; NUM = 6
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 1  ; CONT = 1
-L10:
-    ; ifFalse 1 goto L11 - sempre verdadeiro, não pula
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 2  ; CONT = 2
-    rjmp L10
-L11:
-    ldi r16, 7  ; NUM = 7
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 1  ; CONT = 1
-L12:
-    ; ifFalse 1 goto L13 - sempre verdadeiro, não pula
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 2  ; CONT = 2
-    rjmp L12
-L13:
-    ldi r16, 8  ; NUM = 8
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 1  ; CONT = 1
-L14:
-    ; ifFalse 1 goto L15 - sempre verdadeiro, não pula
-    ldi r17, 1  ; FAT = 1
-    ldi r18, 2  ; CONT = 2
-    rjmp L14
-L15:
+L0:
+    ldi r19, 5
+    mov r20, r18  ; copiar operando1
+    cp r20, r19  ; comparar CONT <= 5
+    brlo cmp_true_1  ; se op1 < op2, resultado = 1
+    breq cmp_true_1  ; se op1 == op2, resultado = 1
+    ldi r20, 0  ; senão, resultado = 0
+    rjmp cmp_end_1
+cmp_true_1:
+    ldi r20, 1
+    rjmp cmp_end_1
+cmp_end_1:
+    tst r20  ; testar t3
+    breq L1  ; saltar se zero (falso)
+    mov r19, r17  ; copiar operando1
+    mul r19, r18  ; t4 = FAT * CONT
+    mov r19, r0  ; resultado em r0 (8-bit)
+    mov r17, r19  ; FAT = t4
+    ldi r21, 1  ; t5 = 1
+    mov r22, r18  ; copiar operando1
+    add r22, r21  ; t6 = CONT + t5
+    mov r18, r22  ; CONT = t6
+    rjmp L0
+L1:
 
     pop r18
     pop r17
