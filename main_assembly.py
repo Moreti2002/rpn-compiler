@@ -1,7 +1,19 @@
 #!/usr/bin/env python3
 """
-Compilador RPN Completo - Fase 6: Assembly AVR
-===============================================
+Compilador RPN Completo - Fase 4: Geração de Código Intermediário e Assembly
+=============================================================================
+
+Universidade: [Nome da Instituição]
+Ano: 2025
+Disciplina: Compiladores
+Professor: Frank de Alcantara
+
+Integrante:
+- João Vitor Moreti de Oliveira - GitHub: @Moreti2002
+
+Grupo Canvas: João Vitor Moreti de Oliveira
+
+=============================================================================
 
 Integra todas as fases do compilador e gera código Assembly AVR:
 1. Análise Léxica

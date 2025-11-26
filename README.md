@@ -1,5 +1,19 @@
 # Compilador RPN para Arduino Uno
 
+## Informações do Projeto
+
+**Universidade:** [Nome da Instituição]  
+**Ano:** 2025  
+**Disciplina:** Compiladores  
+**Professor:** Frank de Alcantara
+
+### Integrante
+- **João Vitor Moreti de Oliveira** - GitHub: [@Moreti2002](https://github.com/Moreti2002)
+
+**Grupo Canvas:** João Vitor Moreti de Oliveira
+
+---
+
 ## Descrição
 
 Compilador completo que traduz expressões em **Notação Polonesa Reversa (RPN)** para **Assembly AVR**, executável no **Arduino Uno (ATmega328P)**. Implementa todas as fases de compilação: análise léxica, sintática, semântica, geração de código intermediário (TAC), otimização e geração de código de máquina.
@@ -1083,7 +1097,186 @@ cat output/tac_original.txt
   - `propagation`: Folding + Propagation
   - `completo`: Todas as otimizações (padrão)
 - **Bug Corrigido**: Otimizador não propaga constantes em variáveis modificadas dentro de loops
-- **Documentação:** `docs/PARTE5_OTIMIZADOR_TAC.md` e `docs/RELATORIO_OTIMIZACOES.md`
+
+---
+
+## Relatório de Otimizações (Requisito 4.5)
+
+### Técnicas Implementadas
+
+#### 1. Constant Folding (Avaliação de Constantes)
+
+**Descrição:**
+Avalia expressões aritméticas com operandos constantes em tempo de compilação, substituindo a operação pelo resultado calculado.
+
+**Implementação:** `src/otimizador_tac.py`, método `constant_folding()`
+
+**Exemplo:**
+
+Antes da otimização:
+```
+t0 = 2
+t1 = 3
+t2 = t0 + t1
+```
+
+Depois da otimização:
+```
+t0 = 2
+t1 = 3
+t2 = 5
+```
+
+**Impacto:**
+- Reduz número de instruções aritméticas
+- Elimina cálculos desnecessários em tempo de execução
+- Simplifica código para otimizações subsequentes
+
+---
+
+#### 2. Constant Propagation (Propagação de Constantes)
+
+**Descrição:**
+Substitui usos de variáveis que contêm valores constantes conhecidos pelos próprios valores constantes.
+
+**Implementação:** `src/otimizador_tac.py`, método `constant_propagation()`
+
+**Exemplo:**
+
+Antes da otimização:
+```
+t0 = 5
+t1 = t0 + 3
+t2 = t0 * 2
+```
+
+Depois da otimização:
+```
+t0 = 5
+t1 = 5 + 3
+t2 = 5 * 2
+```
+
+**Impacto:**
+- Expõe mais oportunidades para constant folding
+- Reduz dependências entre instruções
+- Facilita eliminação de código morto
+
+---
+
+#### 3. Dead Code Elimination (Eliminação de Código Morto)
+
+**Descrição:**
+Remove instruções cujos resultados nunca são utilizados no restante do programa.
+
+**Implementação:** `src/otimizador_tac.py`, método `dead_code_elimination()`
+
+**Algoritmo:**
+1. Analisar todas as instruções e construir conjunto de variáveis usadas
+2. Identificar variáveis definidas mas nunca lidas
+3. Remover atribuições para variáveis mortas
+4. Iterar até não haver mais remoções (ponto fixo)
+
+**Exemplo:**
+
+Antes da otimização:
+```
+t0 = 5
+t1 = 10
+t2 = t0 + t1
+t3 = t2 * 2
+A = t2
+```
+
+Depois da otimização:
+```
+t0 = 5
+t1 = 10
+t2 = t0 + t1
+A = t2
+```
+
+(t3 removido pois nunca é usado)
+
+**Impacto:**
+- Reduz tamanho do código significativamente
+- Elimina alocação de registradores desnecessários
+- Melhora legibilidade do código gerado
+
+---
+
+### Estatísticas de Otimização nos Testes Obrigatórios
+
+#### Fibonacci (24 números da sequência)
+- **TAC Original:** 26 instruções
+- **TAC Otimizado:** 23 instruções
+- **Redução:** 3 instruções (11.5%)
+- **Assembly:** 310 linhas (com debug)
+
+#### Fatorial (1! até 8!)
+- **TAC Original:** 128 instruções
+- **TAC Otimizado:** 125 instruções
+- **Redução:** 3 instruções (2.3%)
+- **Observação:** Múltiplos loops limitam otimizações
+
+#### Taylor (Série cos x)
+- **TAC Original:** 21 instruções
+- **TAC Otimizado:** 9 instruções
+- **Redução:** 12 instruções (57.1%)
+- **Assembly:** 304 linhas (com debug)
+
+---
+
+### Ordem de Aplicação
+
+As otimizações são aplicadas na seguinte ordem para maximizar efetividade:
+
+1. **Constant Folding** - elimina cálculos constantes
+2. **Constant Propagation** - propaga valores conhecidos
+3. **Constant Folding** (novamente) - avalia novas constantes expostas
+4. **Dead Code Elimination** - remove código não utilizado
+5. **Repetir** até atingir ponto fixo (nenhuma mudança)
+
+---
+
+### Impacto no Assembly Gerado
+
+**Redução de Tamanho:**
+- Menos instruções TAC = menos código Assembly
+- Código mais compacto cabe melhor na Flash (32KB disponíveis)
+
+**Uso de Registradores:**
+- Menos variáveis temporárias = menos alocações
+- Menor pressão sobre os 16 registradores disponíveis (R16-R31)
+- Reduz necessidade de spilling para memória SRAM
+
+**Performance:**
+- Menos instruções = menor tempo de execução
+- Menos acessos à memória SRAM (lento comparado a registradores)
+- Código mais eficiente para arquitetura AVR de 8 bits
+
+---
+
+### Limitações das Otimizações
+
+**1. Otimizações Locais Apenas**
+- Operam dentro de expressões individuais
+- Não há análise de fluxo entre blocos de controle
+
+**2. Preservação de Loops**
+- Variáveis modificadas em loops não são propagadas
+- Correção implementada para evitar loops infinitos
+
+**3. Aritmética Inteira 8-bit**
+- Constant folding limitado a inteiros 0-255
+- Overflow resulta em valores truncados (mod 256)
+
+**4. Sem Otimização de Laços**
+- Loop unrolling não implementado
+- Invariant code motion não implementado
+- Strength reduction não implementado
+
+---
 
 ### Parte 8-13: Geração de Assembly AVR - IMPLEMENTADO
 - **Módulo Gerador:** `src/gerador_assembly_avr.py` (756 linhas)
