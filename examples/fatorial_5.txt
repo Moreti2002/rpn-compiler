@@ -1,8 +1,0 @@
-# Teste de Fatorial - Calcula 5! = 120
-# Demonstra uso de loop WHILE com bloco composto
-
-# Calcular 5! = 120
-(5 NUM)
-(1 FAT)
-(1 CONT)
-(CONT NUM <= (((FAT CONT *) FAT) ((CONT 1 +) CONT)) WHILE)
