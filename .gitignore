@@ -33,6 +33,9 @@ env/
 deprecated/
 i.md
 
+# Documentação
+docs/
+
 PLANO_FINALIZACAO.md
 CLEANUP_SUMMARY.md
 implementacao_incremental.md
