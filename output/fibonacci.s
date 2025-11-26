@@ -223,12 +223,21 @@ programa_principal:
     ldi r16, 0  ; A = 0 (constante)
     ; Salvar A na SRAM (0x0120)
     sts 0x0120, r16
+    ; DEBUG: Imprimir A
+    call print_number
+    call print_newline
     ldi r16, 1  ; B = 1 (constante)
     ; Salvar B na SRAM (0x0121)
     sts 0x0121, r16
+    ; DEBUG: Imprimir B
+    call print_number
+    call print_newline
     ldi r16, 23  ; N = 23 (constante)
     ; Salvar N na SRAM (0x012D)
     sts 0x012D, r16
+    ; DEBUG: Imprimir N
+    call print_number
+    call print_newline
 L0:
     ldi r16, 0  ; t3 = 0
     ; Carregar N da SRAM (0x012D)
@@ -259,11 +268,23 @@ cmp_true_1:
     add r22, r17  ; t7 = B + t6
     ; Salvar A na SRAM (0x0120)
     sts 0x0120, r22
+    ; DEBUG: Imprimir A
+    push r16
+    mov r16, r22
+    call print_number
+    call print_newline
+    pop r16
     ldi r21, 0  ; t8 = 0
     mov r23, r19  ; copiar operando1
     add r23, r21  ; t9 = FIB + t8
     ; Salvar B na SRAM (0x0121)
     sts 0x0121, r23
+    ; DEBUG: Imprimir B
+    push r16
+    mov r16, r23
+    call print_number
+    call print_newline
+    pop r16
     ldi r24, 1  ; t10 = 1
     ; Carregar N da SRAM (0x012D)
     lds r25, 0x012D
@@ -271,6 +292,12 @@ cmp_true_1:
     sub r26, r24  ; t11 = N - t10
     ; Salvar N na SRAM (0x012D)
     sts 0x012D, r26
+    ; DEBUG: Imprimir N
+    push r16
+    mov r16, r26
+    call print_number
+    call print_newline
+    pop r16
     rjmp L0
 L1:
     ldi r25, 0  ; t12 = 0
@@ -280,6 +307,12 @@ L1:
     add r28, r25  ; t13 = B + t12
     ; Salvar R na SRAM (0x0131)
     sts 0x0131, r28
+    ; DEBUG: Imprimir R
+    push r16
+    mov r16, r28
+    call print_number
+    call print_newline
+    pop r16
 
     pop r18
     pop r17
