@@ -797,8 +797,35 @@ class GeradorAssemblyAVR:
             asm.append(f"{label_done}:")
             asm.append(f"    ; r{reg_dest} contem o resto")
         elif operador == '^':
-            # Potência requer implementação de função auxiliar
-            asm.append(f"    ; TODO: Potência {op1} ^ {op2}")
+            # Potencia usando multiplicacao repetida
+            label_loop = f"pow_loop_{self.num_labels}"
+            label_done = f"pow_done_{self.num_labels}"
+            label_init = f"pow_init_{self.num_labels}"
+            self.num_labels += 1
+            
+            # Precisamos de registrador auxiliar para contador
+            reg_contador = self.alocar_registrador('_temp_pow_cnt')
+            
+            asm.append(f"    ; {resultado} = {op1} ^ {op2}")
+            asm.append(f"    ; Verificar se expoente == 0")
+            asm.append(f"    tst r{reg_op2}")
+            asm.append(f"    brne {label_init}")
+            asm.append(f"    ldi r{reg_dest}, 1  ; base^0 = 1")
+            asm.append(f"    rjmp {label_done}")
+            asm.append(f"{label_init}:")
+            asm.append(f"    mov r{reg_contador}, r{reg_op2}  ; contador = expoente")
+            asm.append(f"    dec r{reg_contador}  ; contador-- (ja temos base)")
+            asm.append(f"{label_loop}:")
+            asm.append(f"    tst r{reg_contador}")
+            asm.append(f"    breq {label_done}  ; se contador == 0, terminou")
+            asm.append(f"    mul r{reg_dest}, r{reg_op1}  ; resultado *= base")
+            asm.append(f"    mov r{reg_dest}, r0  ; pegar resultado de 8-bit")
+            asm.append(f"    dec r{reg_contador}  ; contador--")
+            asm.append(f"    rjmp {label_loop}")
+            asm.append(f"{label_done}:")
+            asm.append(f"    ; r{reg_dest} contem base^expoente")
+            
+            self.liberar_registrador('_temp_pow_cnt')
         elif operador in ['>', '<', '>=', '<=', '==', '!=']:
             # Comparação - resultado booleano (0 ou 1)
             # Usar labels únicos para evitar conflitos
