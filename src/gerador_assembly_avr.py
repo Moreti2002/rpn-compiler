@@ -783,8 +783,19 @@ class GeradorAssemblyAVR:
             # Divisão requer implementação de função auxiliar
             asm.append(f"    ; TODO: Divisão {op1} / {op2}")
         elif operador == '%':
-            # Módulo requer implementação de função auxiliar
-            asm.append(f"    ; TODO: Módulo {op1} % {op2}")
+            # Modulo usando subtracao repetida
+            label_loop = f"mod_loop_{self.num_labels}"
+            label_done = f"mod_done_{self.num_labels}"
+            self.num_labels += 1
+            
+            asm.append(f"    ; {resultado} = {op1} % {op2}")
+            asm.append(f"{label_loop}:")
+            asm.append(f"    cp r{reg_dest}, r{reg_op2}  ; comparar resto com divisor")
+            asm.append(f"    brlo {label_done}  ; se resto < divisor, terminou")
+            asm.append(f"    sub r{reg_dest}, r{reg_op2}  ; resto -= divisor")
+            asm.append(f"    rjmp {label_loop}")
+            asm.append(f"{label_done}:")
+            asm.append(f"    ; r{reg_dest} contem o resto")
         elif operador == '^':
             # Potência requer implementação de função auxiliar
             asm.append(f"    ; TODO: Potência {op1} ^ {op2}")
