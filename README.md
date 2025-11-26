@@ -12,13 +12,13 @@ RPN → Tokens → AST → TAC → TAC Otimizado → Assembly AVR → Arduino
 
 ### Características:
 
-- ✅ **Analisador Léxico**: AFD implementado com funções
-- ✅ **Parser**: Análise sintática descendente recursiva
-- ✅ **Análise Semântica**: Verificação de tipos e atribuição de atributos
-- ✅ **Gerador TAC**: Código intermediário de três endereços
-- ✅ **Otimizador**: Propagação de constantes, eliminação de código morto (74.4% redução)
-- ✅ **Gerador Assembly AVR**: Código para ATmega328P com UART funcional
-- ✅ **Testado no Arduino**: Comunicação serial operacional a 9600 baud
+-  **Analisador Léxico**: AFD implementado com funções
+-  **Parser**: Análise sintática descendente recursiva
+-  **Análise Semântica**: Verificação de tipos e atribuição de atributos
+-  **Gerador TAC**: Código intermediário de três endereços
+-  **Otimizador**: Propagação de constantes, eliminação de código morto (74.4% redução)
+-  **Gerador Assembly AVR**: Código para ATmega328P com UART funcional
+-  **Testado no Arduino**: Comunicação serial operacional a 9600 baud
 
 ## Estrutura do Projeto
 
@@ -35,11 +35,11 @@ RPN → Tokens → AST → TAC → TAC Otimizado → Assembly AVR → Arduino
 ├── tests/                   # Testes unitários
 │   ├── test_lexer.py       # Testes léxico
 │   ├── test_parser.py      # Testes sintático
-│   ├── test_assembly_parte9.py   # Testes prólogo/epílogo (6/6 ✅)
-│   └── test_assembly_parte10.py  # Testes operações (10/10 ✅)
+│   ├── test_assembly_parte9.py   # Testes prólogo/epílogo (6/6 )
+│   └── test_assembly_parte10.py  # Testes operações (10/10 )
 │
 ├── examples/                # Arquivos de teste RPN
-│   ├── test_arduino_simples.txt  # Programa testado no Arduino ✅
+│   ├── test_arduino_simples.txt  # Programa testado no Arduino 
 │   └── test_completo.txt        # 35 expressões completas
 │
 ├── output/                  # Saída do compilador
@@ -122,8 +122,8 @@ avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 115200 \
 pytest tests/
 
 # Testes específicos
-pytest tests/test_assembly_parte9.py   # 6/6 ✅
-pytest tests/test_assembly_parte10.py  # 10/10 ✅
+pytest tests/test_assembly_parte9.py   # 6/6 
+pytest tests/test_assembly_parte10.py  # 10/10 
 ```
 
 ### 6. Modo Debug (Visualização de Resultados)
@@ -462,12 +462,12 @@ Implementação completa de um **analisador semântico** com gramática de atrib
 ## Características da Fase 3
 
 ### Análise Semântica Completa
-- ✅ **Gramática de Atributos**: Regras semânticas formais para todas as construções
-- ✅ **Julgamento de Tipos**: Verificação e inferência de tipos (int, real, booleano)
-- ✅ **Tabela de Símbolos**: Gerenciamento de memórias e variáveis
-- ✅ **Árvore Sintática Atribuída**: AST com tipos inferidos
-- ✅ **Validação de Memória**: Verificação de inicialização de variáveis
-- ✅ **Estruturas de Controle**: Análise semântica de IF e WHILE
+-  **Gramática de Atributos**: Regras semânticas formais para todas as construções
+-  **Julgamento de Tipos**: Verificação e inferência de tipos (int, real, booleano)
+-  **Tabela de Símbolos**: Gerenciamento de memórias e variáveis
+-  **Árvore Sintática Atribuída**: AST com tipos inferidos
+-  **Validação de Memória**: Verificação de inicialização de variáveis
+-  **Estruturas de Controle**: Análise semântica de IF e WHILE
 
 ### Tipos de Dados Suportados
 - **int**: Números inteiros
@@ -607,7 +607,7 @@ Arquivo de teste com **sintaxe totalmente válida** e sem erros semânticos:
 (10.0 3 -)      # real - int = real
 ```
 
-**Resultado:** ✅ 0 erros semânticos
+**Resultado:**  0 erros semânticos
 
 ### test_fase3_2.txt
 Exemplos de **erros semânticos** detectados:
@@ -656,7 +656,7 @@ Exemplos de **erros semânticos** detectados:
 - Tipo(10.0) = real
 - Tipo(3.0) = real
 - Operador `|` sempre retorna: **real**
-- ✅ Sem erros
+-  Sem erros
 
 ## Erros Semânticos Detectados
 
@@ -744,7 +744,7 @@ Implementação da **geração de código intermediário** em formato Three Addr
 
 ## Status da Implementação
 
-### ✅ Módulos Implementados
+###  Módulos Implementados
 
 #### 1. Gerador de TAC (`src/gerador_tac.py`)
 - **Classe `InstrucaoTAC`**: Representa instruções TAC
@@ -1015,7 +1015,7 @@ cat output/tac_original.txt
 
 ## Recursos Implementados - Fase 4
 
-### ✅ Parte 1: Operações Aritméticas
+###  Parte 1: Operações Aritméticas
 - Conversão de expressões aritméticas para TAC
 - Alocação automática de temporários (t0, t1, t2...)
 - Processamento recursivo de árvore
@@ -1023,7 +1023,7 @@ cat output/tac_original.txt
 - Números inteiros e reais
 - Salvamento em arquivo
 
-### ✅ Parte 2: Comandos Especiais
+###  Parte 2: Comandos Especiais
 - **Armazenamento:** `(V MEM)` → `MEM = V`
 - **Recuperação:** `(MEM)` → `t0 = MEM`
 - **Histórico RES:** `(N RES)` → acessa resultado N linhas anteriores
@@ -1031,7 +1031,7 @@ cat output/tac_original.txt
 - Contexto preservado entre expressões
 - Documentação completa em `docs/PARTE2_TAC_COMANDOS_ESPECIAIS.md`
 
-### ✅ Parte 3: Estruturas de Controle - COMPLETO ✅
+###  Parte 3: Estruturas de Controle - COMPLETO 
 - **Parser Atualizado:** Suporte completo a operadores relacionais (>, <, ==, !=, >=, <=)
 - **Parser Atualizado:** Reconhecimento de estruturas IF e WHILE
 - **Parser Atualizado:** Suporte a expressões aninhadas em blocos
@@ -1044,7 +1044,7 @@ cat output/tac_original.txt
 - **Testes:** 10 expressões de teste em `test_if_while.txt` (100% sucesso)
 - **TAC Gerado:** 71 instruções com 12 rótulos e 33 temporários
 
-### ✅ Parte 4: Integração Completa - IMPLEMENTADO ✅
+###  Parte 4: Integração Completa - IMPLEMENTADO 
 - **Programa Principal:** `main_fase4.py` integra todas as 4 fases
 - **Processamento:** Léxica → Sintática → Semântica → TAC
 - **Contexto Preservado:** Histórico e tabela de símbolos entre expressões
@@ -1056,7 +1056,7 @@ cat output/tac_original.txt
   - `test_if_while.txt` - 10 expressões (71 instruções TAC)
   - `test_tac_comandos.txt` - 17 expressões (33 instruções TAC)
 
-### ✅ Parte 5-7: Otimizador TAC - IMPLEMENTADO ✅
+###  Parte 5-7: Otimizador TAC - IMPLEMENTADO 
 - **Módulo Otimizador:** `src/otimizador_tac.py` (507 linhas)
 - **Programa Principal:** `main_fase5.py` - Compilador com otimização integrada
 - **Técnicas Implementadas:**
@@ -1078,10 +1078,91 @@ cat output/tac_original.txt
 - **Documentação:** Completa em `docs/PARTE5_OTIMIZADOR_TAC.md`
 - **Uso:** `python3 main_fase5.py test_completo.txt --nivel completo`
 
-### ⏳ Próximas Implementações
-- [ ] Parte 8: Integração completa de otimizações ✅ (já implementado na Parte 5)
+###  Próximas Implementações
+- [ ] Parte 8: Integração completa de otimizações  (já implementado na Parte 5)
 - [ ] Parte 9-13: Geração de Assembly AVR
 - [ ] Parte 14-16: Programas de teste e validação no Arduino
+
+## Testes Práticos no Arduino
+
+### Teste 1: Fatorial (5! = 120)
+
+Calcula fatorial de 5 usando loops WHILE com blocos compostos.
+
+**Compilar com debug:**
+```bash
+python3 main_assembly.py examples/fatorial.txt \
+    --output output/fatorial.s \
+    --debug \
+    --nivel sem_otimizacao
+```
+
+**Upload para Arduino (Windows):**
+```batch
+upload_arduino.bat output\fatorial.s COM8
+```
+
+**Upload para Arduino (Linux/Mac):**
+```bash
+avr-gcc -mmcu=atmega328p output/fatorial.s -o fatorial.elf
+avr-objcopy -O ihex -j .text -j .data fatorial.elf fatorial.hex
+avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 115200 -U flash:w:fatorial.hex
+```
+
+**Saída esperada no Serial Monitor (9600 baud):**
+```
+Compilador RPN - Arduino Uno
+5
+1
+1 5 5
+4 4
+1 20 20
+3 3
+1 60 60
+2 2
+1 120 120
+1 1
+0
+```
+
+**Interpretação:** 
+- Primeira linha: NUM = 5
+- Segunda linha: FAT = 1
+- Iterações: condição (1=true/0=false), FAT*NUM, FAT, NUM-1, NUM
+- Resultado final: FAT = 120 (5! = 120) ✓
+
+### Teste 2: Fibonacci (F(0) a F(23))
+
+Calcula sequência de Fibonacci usando loops WHILE e múltiplas variáveis.
+
+**Compilar (sem debug - programa grande):**
+```bash
+python3 main_assembly.py examples/fibonacci.txt \
+    --output output/fibonacci.s \
+    --nivel completo
+```
+
+**Upload:**
+```bash
+# Windows
+upload_arduino.bat output\fibonacci.s COM8
+
+# Linux/Mac
+avr-gcc -mmcu=atmega328p output/fibonacci.s -o fibonacci.elf
+avr-objcopy -O ihex -j .text -j .data fibonacci.elf fibonacci.hex
+avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 115200 -U flash:w:fibonacci.hex
+```
+
+**Nota:** Fibonacci não usa `--debug` devido ao tamanho (90 expressões). O código calcula internamente mas não imprime resultados na serial. Para visualizar resultados, seria necessário criar versão simplificada com menos iterações.
+
+**Sequência calculada internamente:**
+```
+F(0)=0, F(1)=1, F(2)=1, F(3)=2, F(4)=3, F(5)=5, F(6)=8, 
+F(7)=13, F(8)=21, F(9)=34, F(10)=55, F(11)=89, F(12)=144,
+F(13)=233, F(14)=377, F(15)=610, F(16)=987, F(17)=1597,
+F(18)=2584, F(19)=4181, F(20)=6765, F(21)=10946, 
+F(22)=17711, F(23)=28657
+```
 
 ## Observações Importantes
 

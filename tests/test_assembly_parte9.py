@@ -234,7 +234,7 @@ def main():
     print()
     
     if falhas == 0:
-        print("🎉 Todos os testes passaram!")
+        print(" Todos os testes passaram!")
         print()
         print("Próximos passos:")
         print("  - Parte 10: Implementar operações aritméticas")

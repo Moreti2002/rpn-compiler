@@ -561,7 +561,7 @@ class GeradorAssemblyAVR:
         """
         return nome.startswith('t') and nome[1:].isdigit()
     
-    def gerar_debug_print(self, reg: int, label: str = "", newline: bool = False) -> List[str]:
+    def gerar_debug_print(self, reg: int, label: str = "", newline: bool = False, force: bool = False) -> List[str]:
         """
         Gera código para imprimir valor de registrador (debug)
         
@@ -569,12 +569,23 @@ class GeradorAssemblyAVR:
             reg: Registrador a imprimir
             label: Label opcional para identificação
             newline: Se True, adiciona nova linha após o número
+            force: Se True, imprime mesmo temporários (ignora filtro)
             
         Returns:
             Linhas de Assembly
         """
         if not self.debug_print:
             return []
+        
+        # Filtrar temporários e resultados de comparação para reduzir tamanho do código
+        # Só imprime se force=True ou se é uma variável nomeada real
+        if not force and label:
+            # Pular temporários (t0, t1, etc) e expressões complexas
+            if label.startswith('t') and any(c.isdigit() for c in label):
+                return []
+            # Pular labels com operadores (indicam expressões intermediárias)
+            if any(op in label for op in ['+', '-', '*', '/', '>', '<', '=', '!']):
+                return []
         
         codigo = []
         codigo.append(f"    ; DEBUG: Imprimir {label if label else f'r{reg}'}")
@@ -656,7 +667,7 @@ class GeradorAssemblyAVR:
                 asm.append(f"    ldi r{reg_temp}, {const_val}  ; {resultado} = {valor}")
                 asm.extend(self.gerar_store_variavel(reg_temp, resultado))
                 # Debug: Imprimir variável
-                asm.extend(self.gerar_debug_print(reg_temp, resultado, newline=True))
+                asm.extend(self.gerar_debug_print(reg_temp, resultado, newline=True, force=True))
                 self.liberar_registrador('_temp_const')
             else:
                 # Resultado é temporário → Usar registrador
@@ -681,7 +692,7 @@ class GeradorAssemblyAVR:
                 # Resultado é variável nomeada → Salvar na SRAM
                 asm.extend(self.gerar_store_variavel(reg_src, resultado))
                 # Debug: Imprimir variável
-                asm.extend(self.gerar_debug_print(reg_src, resultado, newline=True))
+                asm.extend(self.gerar_debug_print(reg_src, resultado, newline=True, force=True))
                 
                 # Liberar temp se foi alocado
                 if self.eh_variavel_nomeada(valor):
@@ -793,6 +804,7 @@ class GeradorAssemblyAVR:
                 asm.append(f"    rjmp {label_end}")
                 asm.append(f"{label_true}:")
                 asm.append(f"    ldi r{reg_dest}, 1")
+                asm.append(f"    rjmp {label_end}")
                 asm.append(f"{label_end}:")
             elif operador == '!=':
                 asm.append(f"    brne {label_true}  ; se diferente, resultado = 1")
@@ -800,6 +812,7 @@ class GeradorAssemblyAVR:
                 asm.append(f"    rjmp {label_end}")
                 asm.append(f"{label_true}:")
                 asm.append(f"    ldi r{reg_dest}, 1")
+                asm.append(f"    rjmp {label_end}")
                 asm.append(f"{label_end}:")
             elif operador == '<':
                 asm.append(f"    brlo {label_true}  ; se menor (unsigned), resultado = 1")
@@ -807,6 +820,7 @@ class GeradorAssemblyAVR:
                 asm.append(f"    rjmp {label_end}")
                 asm.append(f"{label_true}:")
                 asm.append(f"    ldi r{reg_dest}, 1")
+                asm.append(f"    rjmp {label_end}")
                 asm.append(f"{label_end}:")
             elif operador == '>=':
                 asm.append(f"    brsh {label_true}  ; se >= (unsigned), resultado = 1")
@@ -814,15 +828,18 @@ class GeradorAssemblyAVR:
                 asm.append(f"    rjmp {label_end}")
                 asm.append(f"{label_true}:")
                 asm.append(f"    ldi r{reg_dest}, 1")
+                asm.append(f"    rjmp {label_end}")
                 asm.append(f"{label_end}:")
             elif operador == '>':
                 # op1 > op2 = NOT(op1 <= op2) = NOT(op1 < op2 OR op1 == op2)
+                # Use rjmp for longer jumps to avoid branch range issues
                 asm.append(f"    brlo {label_end}  ; se op1 < op2, resultado = 0")
                 asm.append(f"    breq {label_end}  ; se op1 == op2, resultado = 0")
                 asm.append(f"    ldi r{reg_dest}, 1  ; senão op1 > op2, resultado = 1")
                 asm.append(f"    rjmp {label_true}")
                 asm.append(f"{label_end}:")
                 asm.append(f"    ldi r{reg_dest}, 0")
+                asm.append(f"    rjmp {label_true}")
                 asm.append(f"{label_true}:")
             elif operador == '<=':
                 # op1 <= op2 = op1 < op2 OR op1 == op2
@@ -832,6 +849,7 @@ class GeradorAssemblyAVR:
                 asm.append(f"    rjmp {label_end}")
                 asm.append(f"{label_true}:")
                 asm.append(f"    ldi r{reg_dest}, 1")
+                asm.append(f"    rjmp {label_end}")
                 asm.append(f"{label_end}:")
         else:
             asm.append(f"    ; ERRO: Operador {operador} não suportado")
@@ -876,7 +894,7 @@ class GeradorAssemblyAVR:
                 asm.append(f"    ldi r{reg_temp}, {const_val}  ; {dest} = {src} (constante)")
                 asm.extend(self.gerar_store_variavel(reg_temp, dest))
                 # Debug: Imprimir valor da variável
-                asm.extend(self.gerar_debug_print(reg_temp, dest, newline=True))
+                asm.extend(self.gerar_debug_print(reg_temp, dest, newline=True, force=True))
                 self.liberar_registrador('_temp_store')
             else:
                 # Destino é temporário → Usar registrador
@@ -901,7 +919,7 @@ class GeradorAssemblyAVR:
                 # Destino é variável nomeada → Salvar na SRAM
                 asm.extend(self.gerar_store_variavel(reg_src, dest))
                 # Debug: Imprimir valor da variável
-                asm.extend(self.gerar_debug_print(reg_src, dest, newline=True))
+                asm.extend(self.gerar_debug_print(reg_src, dest, newline=True, force=True))
                 
                 # Liberar temp se foi alocado
                 if src != '_temp_load' and self.eh_variavel_nomeada(src):
@@ -910,9 +928,6 @@ class GeradorAssemblyAVR:
                 # Destino é temporário → Copiar para registrador
                 reg_dest = self.alocar_registrador(dest)
                 asm.append(f"    mov r{reg_dest}, r{reg_src}  ; {dest} = {src}")
-                # Debug: Imprimir variável multi-letra (NUM, FAT, etc.) se não for temporário t0-t31
-                if not self.eh_temporario(dest):
-                    asm.extend(self.gerar_debug_print(reg_dest, dest, newline=True))
         
         return asm
     

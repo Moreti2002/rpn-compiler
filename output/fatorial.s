@@ -220,49 +220,16 @@ programa_principal:
     push r17
     push r18
 
-    ldi r16, 1  ; FAT = 1
-    ldi r17, 2  ; NUM = 2
-    ldi r16, 1  ; FAT = 1
-L0:
-    ; ifFalse 1 goto L1 - sempre verdadeiro, não pula
-    rjmp L0
-L1:
-    ldi r17, 3  ; NUM = 3
-    ldi r16, 1  ; FAT = 1
-L2:
-    ; ifFalse 1 goto L3 - sempre verdadeiro, não pula
-    rjmp L2
-L3:
-    ldi r17, 4  ; NUM = 4
-    ldi r16, 1  ; FAT = 1
-L4:
-    ; ifFalse 1 goto L5 - sempre verdadeiro, não pula
-    rjmp L4
-L5:
-    ldi r17, 5  ; NUM = 5
-    ldi r16, 1  ; FAT = 1
-L6:
-    ; ifFalse 1 goto L7 - sempre verdadeiro, não pula
-    rjmp L6
-L7:
-    ldi r17, 6  ; NUM = 6
-    ldi r16, 1  ; FAT = 1
-L8:
-    ; ifFalse 1 goto L9 - sempre verdadeiro, não pula
-    rjmp L8
-L9:
-    ldi r17, 7  ; NUM = 7
-    ldi r16, 1  ; FAT = 1
-L10:
-    ; ifFalse 1 goto L11 - sempre verdadeiro, não pula
-    rjmp L10
-L11:
-    ldi r17, 8  ; NUM = 8
-    ldi r16, 1  ; FAT = 1
-L12:
-    ; ifFalse 1 goto L13 - sempre verdadeiro, não pula
-    rjmp L12
-L13:
+    ldi r16, 5  ; t0 = 5
+    mov r17, r16  ; NUM = t0
+    ldi r18, 1  ; t1 = 1
+    mov r19, r18  ; FAT = t1
+    ldi r20, 1  ; t2 = 1
+    mov r21, r20  ; CONT = t2
+    mov r22, r19  ; copiar operando1
+    mul r22, r21  ; t3 = FAT * CONT
+    mov r22, r0  ; resultado em r0 (8-bit)
+    mov r19, r22  ; FAT = t3
 
     pop r18
     pop r17

@@ -29,7 +29,7 @@ def test_comparacao_igual():
     assert 'ldi r' in asm_str and '1' in asm_str, "Deve carregar 1 (verdadeiro)"
     assert 'ldi r' in asm_str and '0' in asm_str, "Deve carregar 0 (falso)"
     
-    print("✅ PASSOU: Comparação == implementada\n")
+    print(" PASSOU: Comparação == implementada\n")
 
 def test_comparacao_diferente():
     """Teste 2: Comparação != gera brne"""
@@ -47,7 +47,7 @@ def test_comparacao_diferente():
     assert 'brne' in asm_str, "Deve usar brne para !="
     assert 'cmp_true' in asm_str or 'cmp_end' in asm_str, "Deve ter labels"
     
-    print("✅ PASSOU: Comparação != implementada\n")
+    print(" PASSOU: Comparação != implementada\n")
 
 def test_comparacao_menor():
     """Teste 3: Comparação < gera brlo"""
@@ -64,7 +64,7 @@ def test_comparacao_menor():
     
     assert 'brlo' in asm_str, "Deve usar brlo para <"
     
-    print("✅ PASSOU: Comparação < implementada\n")
+    print(" PASSOU: Comparação < implementada\n")
 
 def test_comparacao_maior():
     """Teste 4: Comparação > """
@@ -83,7 +83,7 @@ def test_comparacao_maior():
     # > é implementado como NOT(<= ), então pode usar brlo e breq
     assert 'brlo' in asm_str or 'breq' in asm_str, "Deve ter branches"
     
-    print("✅ PASSOU: Comparação > implementada\n")
+    print(" PASSOU: Comparação > implementada\n")
 
 def test_rotulo():
     """Teste 5: Geração de rótulos"""
@@ -99,7 +99,7 @@ def test_rotulo():
     
     assert 'L0:' in asm_str, "Deve gerar label L0:"
     
-    print("✅ PASSOU: Rótulos funcionando\n")
+    print(" PASSOU: Rótulos funcionando\n")
 
 def test_goto():
     """Teste 6: Salto incondicional"""
@@ -115,7 +115,7 @@ def test_goto():
     
     assert 'rjmp L1' in asm_str, "Deve gerar rjmp L1"
     
-    print("✅ PASSOU: Goto funcionando\n")
+    print(" PASSOU: Goto funcionando\n")
 
 def test_if_false():
     """Teste 7: Salto condicional (ifFalse)"""
@@ -135,7 +135,7 @@ def test_if_false():
     assert 'tst r' in asm_str, "Deve testar registrador"
     assert 'breq L2' in asm_str, "Deve saltar se zero (falso)"
     
-    print("✅ PASSOU: ifFalse funcionando\n")
+    print(" PASSOU: ifFalse funcionando\n")
 
 def main():
     """Executar todos os testes"""
@@ -161,20 +161,20 @@ def main():
             teste()
             passou += 1
         except AssertionError as e:
-            print(f"❌ FALHOU: {nome}")
+            print(f" FALHOU: {nome}")
             print(f"   Erro: {e}\n")
             falhou += 1
         except Exception as e:
-            print(f"❌ ERRO: {nome}")
+            print(f" ERRO: {nome}")
             print(f"   Exceção: {e}\n")
             falhou += 1
     
     print("=" * 70)
     print(f"RESULTADO: {passou}/{len(testes)} testes passaram")
     if falhou == 0:
-        print("✅ TODOS OS TESTES PASSARAM!")
+        print(" TODOS OS TESTES PASSARAM!")
     else:
-        print(f"❌ {falhou} teste(s) falharam")
+        print(f" {falhou} teste(s) falharam")
     print("=" * 70)
     
     return falhou == 0

@@ -58,7 +58,7 @@ def compilar_para_assembly(expressoes: List[str], nivel_otimizacao: str = 'compl
     gerador_tac = GeradorTAC()
     otimizador = OtimizadorTAC()
     
-    print(f"📝 Compilando {len(expressoes)} expressões...")
+    print(f" Compilando {len(expressoes)} expressões...")
     print()
     
     # Processar cada expressão
@@ -100,7 +100,7 @@ def compilar_para_assembly(expressoes: List[str], nivel_otimizacao: str = 'compl
     print()
     
     # Fase 5: Otimização TAC
-    print("🔧 Otimizando código TAC...")
+    print(" Otimizando código TAC...")
     tac_original = gerador_tac.instrucoes
     tac_otimizado = otimizador.otimizar(tac_original, nivel_otimizacao)
     
@@ -113,7 +113,7 @@ def compilar_para_assembly(expressoes: List[str], nivel_otimizacao: str = 'compl
     print()
     
     # Fase 6: Geração Assembly
-    print("⚩️  Gerando Assembly AVR...")
+    print("  Gerando Assembly AVR...")
     gerador_asm = GeradorAssemblyAVR(baud_rate=baud_rate, debug_print=debug_print)
     codigo_assembly = gerador_asm.gerar(tac_otimizado)
     
@@ -183,7 +183,7 @@ def main():
     # Ler arquivo
     caminho = Path(arquivo_entrada)
     if not caminho.exists():
-        print(f"❌ Arquivo não encontrado: {arquivo_entrada}")
+        print(f" Arquivo não encontrado: {arquivo_entrada}")
         sys.exit(1)
     
     with open(caminho, 'r', encoding='utf-8') as f:
@@ -233,7 +233,7 @@ def main():
     print(f"  avr-objcopy -O ihex -j .text -j .data {output_path.stem}.elf {output_path.stem}.hex")
     print(f"  avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 115200 -U flash:w:{output_path.stem}.hex")
     print()
-    print("✅ Compilação concluída!")
+    print(" Compilação concluída!")
 
 
 if __name__ == '__main__':

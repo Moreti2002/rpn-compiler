@@ -165,7 +165,7 @@ def main():
     )
     
     print("=" * 80)
-    print("✅ Todos os testes concluídos!")
+    print(" Todos os testes concluídos!")
     print("=" * 80)
 
 

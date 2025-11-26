@@ -1,1 +1,0 @@
-(A B == (100 RESULT) (200 RESULT) IF)

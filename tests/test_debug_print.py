@@ -21,7 +21,7 @@ def test_funcoes_print_existem():
     assert 'print_newline:' in assembly, "Função print_newline deve existir"
     assert 'print_space:' in assembly, "Função print_space deve existir"
     
-    print("✅ PASSOU: Todas as funções de print estão presentes\n")
+    print(" PASSOU: Todas as funções de print estão presentes\n")
 
 def test_print_number_implementacao():
     """Teste 2: Verificar implementação de print_number"""
@@ -37,7 +37,7 @@ def test_print_number_implementacao():
     # Verificar conversão para ASCII
     assert 'subi r16, -48' in assembly, "Deve converter para ASCII (adicionar 48)"
     
-    print("✅ PASSOU: print_number implementado corretamente\n")
+    print(" PASSOU: print_number implementado corretamente\n")
 
 def test_debug_print_ativo():
     """Teste 3: Verificar que debug_print gera calls"""
@@ -56,7 +56,7 @@ def test_debug_print_ativo():
     assert 'call print_space' in asm_str, "Deve chamar print_space"
     
     print(asm_str)
-    print("\n✅ PASSOU: Debug print gera calls corretamente\n")
+    print("\n PASSOU: Debug print gera calls corretamente\n")
 
 def test_debug_print_inativo():
     """Teste 4: Verificar que sem debug_print não gera calls"""
@@ -74,7 +74,7 @@ def test_debug_print_inativo():
     assert 'call print_number' not in asm_str, "Não deve chamar print_number"
     assert 'DEBUG' not in asm_str, "Não deve ter comentários DEBUG"
     
-    print("✅ PASSOU: Sem debug print, não gera calls\n")
+    print(" PASSOU: Sem debug print, não gera calls\n")
 
 def test_print_newline():
     """Teste 5: Verificar implementação de print_newline"""
@@ -87,7 +87,7 @@ def test_print_newline():
     assert 'ldi r16, 13' in assembly, "Deve carregar CR (13)"
     assert 'ldi r16, 10' in assembly, "Deve carregar LF (10)"
     
-    print("✅ PASSOU: print_newline implementado (CR+LF)\n")
+    print(" PASSOU: print_newline implementado (CR+LF)\n")
 
 def main():
     """Executar todos os testes"""
@@ -111,20 +111,20 @@ def main():
             teste()
             passou += 1
         except AssertionError as e:
-            print(f"❌ FALHOU: {nome}")
+            print(f" FALHOU: {nome}")
             print(f"   Erro: {e}\n")
             falhou += 1
         except Exception as e:
-            print(f"❌ ERRO: {nome}")
+            print(f" ERRO: {nome}")
             print(f"   Exceção: {e}\n")
             falhou += 1
     
     print("=" * 70)
     print(f"RESULTADO: {passou}/{len(testes)} testes passaram")
     if falhou == 0:
-        print("✅ TODOS OS TESTES PASSARAM!")
+        print(" TODOS OS TESTES PASSARAM!")
     else:
-        print(f"❌ {falhou} teste(s) falharam")
+        print(f" {falhou} teste(s) falharam")
     print("=" * 70)
     
     return falhou == 0

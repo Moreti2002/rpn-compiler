@@ -58,7 +58,7 @@ try:
     
 except ImportError as e:
     print("=" * 70)
-    print("❌ ERRO DE IMPORTAÇÃO")
+    print(" ERRO DE IMPORTAÇÃO")
     print("=" * 70)
     print(f"\nErro: {e}\n")
     print("Verifique se todos os arquivos foram instalados corretamente.")
@@ -119,7 +119,7 @@ def processar_arquivo_teste(nome_arquivo: str):
         print(f"\n✓ Total: {len(expressoes_validas)} expressões válidas\n")
         
         if not expressoes_validas:
-            print("⚠️  Nenhuma expressão válida para processar")
+            print("  Nenhuma expressão válida para processar")
             return
         
         # ==================================================================
@@ -163,7 +163,7 @@ def processar_arquivo_teste(nome_arquivo: str):
         print(f"\n✓ Total: {len(arvores_atribuidas)} árvores prontas para TAC\n")
         
         if not arvores_atribuidas:
-            print("⚠️  Nenhuma árvore válida para gerar TAC")
+            print("  Nenhuma árvore válida para gerar TAC")
             return
         
         # ==================================================================
@@ -242,7 +242,7 @@ def processar_arquivo_teste(nome_arquivo: str):
             print(f"\n✓ Teste concluído com sucesso!")
             print(f"✓ TAC salvo em: {arquivo_saida}")
         else:
-            print("⚠️  Nenhuma instrução TAC foi gerada")
+            print("  Nenhuma instrução TAC foi gerada")
         
     except Exception as e:
         print(f"\n✗ Erro durante o teste: {e}")
@@ -264,7 +264,7 @@ def main():
             
         if not os.path.exists(arquivo):
             print("=" * 70)
-            print("❌ ERRO: Arquivo de teste não encontrado")
+            print(" ERRO: Arquivo de teste não encontrado")
             print("=" * 70)
             print("\nUso: python3 test_gerador_tac.py <arquivo_teste.txt>")
             print("\nExemplo:")

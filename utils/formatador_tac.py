@@ -113,11 +113,11 @@ def exibir_tac_colorido(instrucoes: List[Any]) -> None:
         instrucoes: Lista de objetos InstrucaoTAC
     """
     print("\n" + "=" * 60)
-    print("📝 THREE ADDRESS CODE (TAC)")
+    print(" THREE ADDRESS CODE (TAC)")
     print("=" * 60 + "\n")
     
     if not instrucoes:
-        print("⚠️  Nenhuma instrução gerada")
+        print("  Nenhuma instrução gerada")
     else:
         for i, instrucao in enumerate(instrucoes, 1):
             # Adicionar indicador visual por tipo

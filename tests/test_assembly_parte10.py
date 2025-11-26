@@ -323,7 +323,7 @@ def main():
     print()
     
     if falhas == 0:
-        print("🎉 Todos os testes passaram!")
+        print(" Todos os testes passaram!")
         print()
         print("Operações implementadas:")
         print("  ✓ Atribuição de constantes (ldi)")
