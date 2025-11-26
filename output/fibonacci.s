@@ -226,23 +226,60 @@ programa_principal:
     ldi r16, 1  ; B = 1 (constante)
     ; Salvar B na SRAM (0x0121)
     sts 0x0121, r16
-    ldi r16, 5  ; N = 5 (constante)
+    ldi r16, 23  ; N = 23 (constante)
     ; Salvar N na SRAM (0x012D)
     sts 0x012D, r16
 L0:
-    ; ifFalse 1 goto L1 - sempre verdadeiro, não pula
-    ldi r16, 1  ; FIB = 1
-    ldi r17, 1  ; A = 1 (constante)
+    ldi r16, 0  ; t3 = 0
+    ; Carregar N da SRAM (0x012D)
+    lds r17, 0x012D
+    mov r18, r17  ; copiar operando1
+    cp r18, r16  ; comparar N > t3
+    brlo cmp_end_1  ; se op1 < op2, resultado = 0
+    breq cmp_end_1  ; se op1 == op2, resultado = 0
+    ldi r18, 1  ; senão op1 > op2, resultado = 1
+    rjmp cmp_true_1
+cmp_end_1:
+    ldi r18, 0
+    rjmp cmp_true_1
+cmp_true_1:
+    tst r18  ; testar t4
+    breq L1  ; saltar se zero (falso)
+    ; Carregar A da SRAM (0x0120)
+    lds r17, 0x0120
+    ; Carregar B da SRAM (0x0121)
+    lds r19, 0x0121
+    mov r20, r17  ; copiar operando1
+    add r20, r19  ; t5 = A + B
+    mov r19, r20  ; FIB = t5
+    ldi r17, 0  ; t6 = 0
+    ; Carregar B da SRAM (0x0121)
+    lds r21, 0x0121
+    mov r22, r21  ; copiar operando1
+    add r22, r17  ; t7 = B + t6
     ; Salvar A na SRAM (0x0120)
-    sts 0x0120, r17
-    ldi r17, 1  ; B = 1 (constante)
+    sts 0x0120, r22
+    ldi r21, 0  ; t8 = 0
+    mov r23, r19  ; copiar operando1
+    add r23, r21  ; t9 = FIB + t8
     ; Salvar B na SRAM (0x0121)
-    sts 0x0121, r17
-    ldi r17, 4  ; N = 4 (constante)
+    sts 0x0121, r23
+    ldi r24, 1  ; t10 = 1
+    ; Carregar N da SRAM (0x012D)
+    lds r25, 0x012D
+    mov r26, r25  ; copiar operando1
+    sub r26, r24  ; t11 = N - t10
     ; Salvar N na SRAM (0x012D)
-    sts 0x012D, r17
+    sts 0x012D, r26
     rjmp L0
 L1:
+    ldi r25, 0  ; t12 = 0
+    ; Carregar B da SRAM (0x0121)
+    lds r27, 0x0121
+    mov r28, r27  ; copiar operando1
+    add r28, r25  ; t13 = B + t12
+    ; Salvar R na SRAM (0x0131)
+    sts 0x0131, r28
 
     pop r18
     pop r17

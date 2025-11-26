@@ -1,11 +1,20 @@
-# Teste de Fibonacci - Versão Debug Ultra-Simples
-# Calcula F(5) = 5 usando loop WHILE
-# Demonstra funcionamento completo do algoritmo
+# Teste de Fibonacci - Calcula primeiros 24 numeros de Fibonacci
+# F(0)=0, F(1)=1, F(2)=1, F(3)=2, ..., F(23)=28657
+# Usa loop WHILE para calcular sequencia iterativamente
+# ATENCAO: Valores > 255 sofrem overflow em 8 bits (F(12)=144 e acima)
 
-# Inicializar variáveis
+# Inicializar variaveis
 (0 A)
 (1 B)
-(5 N)
+(23 N)
 
-# Loop: enquanto N > 0, calcula próximo Fibonacci
+# Loop: enquanto N > 0, calcula proximo Fibonacci
+# FIB = A + B
+# A = B (valor anterior)
+# B = FIB (novo valor)
+# N = N - 1 (decrementa contador)
 (N 0 > ( ((A B +) FIB) ((B 0 +) A) ((FIB 0 +) B) ((N 1 -) N) ) WHILE)
+
+# Usar resultado para evitar otimizacao morta
+# B contem F(23) apos o loop
+((B 0 +) R)

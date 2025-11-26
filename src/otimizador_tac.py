@@ -200,6 +200,35 @@ class OtimizadorTAC:
         self.estatisticas['constant_folding'] = folding_count
         return otimizadas
     
+    def detectar_variaveis_loop(self, instrucoes: List[InstrucaoTAC]) -> Set[str]:
+        """
+        Detecta variáveis que são modificadas dentro de loops (entre ROTULO e GOTO)
+        Essas variáveis NÃO devem ter propagação de constantes
+        
+        Args:
+            instrucoes: Lista de instruções TAC
+            
+        Returns:
+            Conjunto de variáveis modificadas em loops
+        """
+        variaveis_loop = set()
+        dentro_loop = False
+        rotulo_atual = None
+        
+        for instrucao in instrucoes:
+            if instrucao.tipo == 'ROTULO':
+                rotulo_atual = instrucao.resultado
+                dentro_loop = True
+            elif instrucao.tipo == 'GOTO' and dentro_loop:
+                # Fim do loop
+                dentro_loop = False
+                rotulo_atual = None
+            elif dentro_loop and instrucao.resultado:
+                # Variável modificada dentro do loop
+                variaveis_loop.add(instrucao.resultado)
+        
+        return variaveis_loop
+    
     def constant_propagation(self, instrucoes: List[InstrucaoTAC]) -> List[InstrucaoTAC]:
         """
         Parte 6: Constant Propagation - Propagação de constantes
@@ -217,12 +246,17 @@ class OtimizadorTAC:
         valores = {}  # Mapa de variáveis para valores constantes
         propagation_count = 0
         
+        # Detectar variáveis modificadas em loops - NÃO propagar essas
+        variaveis_loop = self.detectar_variaveis_loop(instrucoes)
+        
         for instrucao in instrucoes:
             nova_instrucao = copy.copy(instrucao)
             
             # Atualizar mapa de valores conhecidos
+            # NÃO propagar variáveis modificadas em loops
             if instrucao.tipo == 'ATRIBUICAO' and self.eh_constante(instrucao.operando1):
-                valores[instrucao.resultado] = instrucao.operando1
+                if instrucao.resultado not in variaveis_loop:
+                    valores[instrucao.resultado] = instrucao.operando1
             
             # Invalidar valor se variável é modificada de forma não-constante
             elif instrucao.tipo in ['OPERACAO', 'COPIA', 'IF_FALSE']:
@@ -231,13 +265,13 @@ class OtimizadorTAC:
             
             # Propagar constantes em operações
             if instrucao.tipo == 'OPERACAO':
-                # Substituir operando1 se for constante conhecida
-                if instrucao.operando1 in valores:
+                # Substituir operando1 se for constante conhecida E não é variável de loop
+                if instrucao.operando1 in valores and instrucao.operando1 not in variaveis_loop:
                     nova_instrucao.operando1 = valores[instrucao.operando1]
                     propagation_count += 1
                 
-                # Substituir operando2 se for constante conhecida
-                if instrucao.operando2 in valores:
+                # Substituir operando2 se for constante conhecida E não é variável de loop
+                if instrucao.operando2 in valores and instrucao.operando2 not in variaveis_loop:
                     nova_instrucao.operando2 = valores[instrucao.operando2]
                     propagation_count += 1
                 
@@ -259,17 +293,17 @@ class OtimizadorTAC:
             
             # Propagar em cópias
             elif instrucao.tipo == 'COPIA':
-                if instrucao.operando1 in valores:
+                if instrucao.operando1 in valores and instrucao.operando1 not in variaveis_loop:
                     nova_instrucao.operando1 = valores[instrucao.operando1]
                     propagation_count += 1
                 
-                # Se copia uma constante, registrar
-                if self.eh_constante(nova_instrucao.operando1):
+                # Se copia uma constante, registrar (mas não se for variável de loop)
+                if self.eh_constante(nova_instrucao.operando1) and instrucao.resultado not in variaveis_loop:
                     valores[instrucao.resultado] = nova_instrucao.operando1
             
-            # Propagar em condicionais
+            # Propagar em condicionais - NUNCA propagar em IF_FALSE (condições de loop)
             elif instrucao.tipo == 'IF_FALSE':
-                if instrucao.operando1 in valores:
+                if instrucao.operando1 in valores and instrucao.operando1 not in variaveis_loop:
                     nova_instrucao.operando1 = valores[instrucao.operando1]
                     propagation_count += 1
             
